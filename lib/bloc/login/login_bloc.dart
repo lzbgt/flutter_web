@@ -17,10 +17,8 @@ abstract class LoginEvent extends Equatable {
 
   @override
   String toString() {
-    var str = '';
-    for (var v in this.props) {
-      str += ',' + v.toString();
-    }
+    final str = props.reduce(
+        (value, element) => value.toString() + ',' + element.toString());
     return '{this: $this, $str}';
   }
 }
@@ -70,10 +68,8 @@ class LoginState extends Equatable {
 
   @override
   String toString() {
-    var str = '';
-    for (var v in this.props) {
-      str += ',' + v.toString();
-    }
+    final str = props.reduce(
+        (value, element) => value.toString() + ',' + element.toString());
     return '{this: ${this.runtimeType}, $str}';
   }
 
