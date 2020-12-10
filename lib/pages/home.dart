@@ -5,17 +5,8 @@ import '../bloc/login/login_bloc.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({key}) : super(key: key);
-
   @override
-  Widget build(Object context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('ETSME UC TOOLS')),
-        body: BlocProvider(
-          create: (_) => LoginBloc(),
-          child: LoginPage(),
-        ),
-      ),
-    );
+  Widget build(BuildContext context) {
+    return Container();
   }
 }

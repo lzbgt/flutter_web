@@ -20,7 +20,9 @@ class API {
     tok = '';
     try {
       box.put(cst.authTokenKey, '');
-      final resp = await Dio().get(_base_url + '/login/$phone/$password');
+      final resp =
+          await Dio(BaseOptions(connectTimeout: 3000, receiveTimeout: 3000))
+              .get(_base_url + '/login/$phone/$password');
       print(resp);
       tok = resp.data['token'];
       print('new tok: $tok');

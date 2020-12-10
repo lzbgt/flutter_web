@@ -44,7 +44,7 @@ class PasswordWidget extends StatelessWidget {
         focusNode: focusNode,
         obscureText: true,
         decoration: InputDecoration(
-            icon: const Icon(Icons.phone_iphone),
+            icon: const Icon(Icons.security_rounded),
             labelText: 'Password',
             helperText: 'password used to login to JIRA',
             errorText:
@@ -111,41 +111,52 @@ class _LoginState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginBloc, LoginState>(
-      listener: (context, state) {
-        if (state.status.isSubmissionSuccess) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              const SnackBar(content: Text('login success')),
-            );
-        } else if (state.status.isSubmissionInProgress) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              const SnackBar(content: Text('Submitting...')),
-            );
-        } else if (state.status.isSubmissionFailure) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                content: Text('Login Failed: ${state.data}'),
-                duration: Duration(minutes: 1),
-              ),
-            );
-        } else {}
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            PhoneWidget(focusNode: _phoneFocus),
-            PasswordWidget(focusNode: _passwordFocus),
-            SubmitButton(),
-          ],
-        ),
-      ),
-    );
+    return Scaffold(
+        appBar: AppBar(title: const Text('ETSME UC TOOLS')),
+        body: BlocListener<LoginBloc, LoginState>(
+          listener: (context, state) {
+            if (state.status.isSubmissionSuccess) {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  const SnackBar(content: Text('login success')),
+                );
+              Navigator.of(context).popAndPushNamed('/home');
+            } else if (state.status.isSubmissionInProgress) {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  const SnackBar(
+                      duration: Duration(hours: 100),
+                      content: ListTile(
+                        leading: CircularProgressIndicator(),
+                        title: Text(
+                          'Submitting...',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      )),
+                );
+            } else if (state.status.isSubmissionFailure) {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  SnackBar(
+                    content: Text('Login Failed: ${state.data}'),
+                    duration: Duration(minutes: 1),
+                  ),
+                );
+            } else {}
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                PhoneWidget(focusNode: _phoneFocus),
+                PasswordWidget(focusNode: _passwordFocus),
+                SubmitButton(),
+              ],
+            ),
+          ),
+        ));
   }
 }
