@@ -9,6 +9,7 @@ import "package:hive_flutter/hive_flutter.dart";
 import 'model/common/obs.dart';
 import 'bloc/login/login_bloc.dart';
 import 'const/consts.dart';
+import 'bloc/home/home_bloc.dart';
 
 void main() async {
   Bloc.observer = DefaultBlocObs();
@@ -29,7 +30,10 @@ class MyApp extends StatelessWidget {
         routes: {
           '/login': (context) => BlocProvider<LoginBloc>(
               create: (_) => LoginBloc(), child: LoginPage()),
-          '/home': (context) => HomePage(),
+          '/home': (context) => BlocProvider<HomeBloc>(
+                create: (_) => HomeBloc(),
+                child: HomePage(),
+              ),
         });
   }
 }
