@@ -19,7 +19,7 @@ abstract class LoginEvent extends Equatable {
   String toString() {
     final str = props.reduce(
         (value, element) => value.toString() + ',' + element.toString());
-    return '{this: $this, $str}';
+    return '{this: ${this.runtimeType}, $str}';
   }
 }
 
