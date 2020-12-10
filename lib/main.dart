@@ -8,6 +8,7 @@ import 'package:bloc/bloc.dart';
 import "package:hive_flutter/hive_flutter.dart";
 import 'model/common/obs.dart';
 import 'bloc/login/login_bloc.dart';
+import 'const/consts.dart';
 
 void main() async {
   Bloc.observer = DefaultBlocObs();
@@ -22,10 +23,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'ETSME UC TOOL', initialRoute: '/login', routes: {
-      '/login': (context) => BlocProvider<LoginBloc>(
-          create: (_) => LoginBloc(), child: LoginPage()),
-      '/home': (context) => HomePage(),
-    });
+    return MaterialApp(
+        title: Consts().appName,
+        initialRoute: '/login',
+        routes: {
+          '/login': (context) => BlocProvider<LoginBloc>(
+              create: (_) => LoginBloc(), child: LoginPage()),
+          '/home': (context) => HomePage(),
+        });
   }
 }

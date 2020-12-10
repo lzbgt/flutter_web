@@ -3,10 +3,12 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
 import '../../model/login/login.dart';
-import '../../service/api.dart';
 import 'package:meta/meta.dart';
 import 'package:injector/injector.dart';
 import 'package:hive/hive.dart';
+import '../../const/consts.dart';
+import '../../service/api.dart';
+import '../../service/impl/api.dart';
 
 abstract class LoginEvent extends Equatable {
   const LoginEvent();
@@ -80,10 +82,12 @@ class LoginState extends Equatable {
 }
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  LoginBloc() : super(const LoginState());
+  LoginBloc({this.api: const ProdAPI()}) : super(const LoginState());
+  final API api;
 
   @override
   Stream<LoginState> mapEventToState(LoginEvent event) async* {
+    final cst = Consts();
     if (event is PhoneChanged) {
       final phone = Phone.dirty(event.phone);
       yield state.copyWith(
@@ -115,11 +119,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         phone: phone,
         password: password,
         status: Formz.validate([state.phone, state.password]),
+        data: null,
       );
 
-      if (state.status.isValidated) {
+      if (state.status.isValid || state.status.isSubmissionFailure) {
         yield state.copyWith(status: FormzStatus.submissionInProgress);
-        final tok = await API.login(state.phone.value, state.password.value);
+        final tok = await api.login(state.phone.value, state.password.value);
         if (tok.code != 0) {
           print('get token exception: ${tok.message}');
           yield state.copyWith(
@@ -130,7 +135,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           );
         } else {
           final box = Injector.appInstance.get<Box>();
-          box.put('login:token', tok.data);
+          box.put(cst.authTokenKey, tok.data);
           yield state.copyWith(
             status: FormzStatus.submissionSuccess,
             data: tok.message,

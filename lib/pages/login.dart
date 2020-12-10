@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
-import 'widgets/common.dart';
+import '../const/consts.dart';
 
 class PhoneWidget extends StatelessWidget {
   const PhoneWidget({key, @required this.focusNode}) : super(key: key);
@@ -66,7 +66,7 @@ class SubmitButton extends StatelessWidget {
       buildWhen: (previous, current) => previous.status != current.status,
       builder: (context, state) {
         return RaisedButton(
-          onPressed: state.status.isValidated
+          onPressed: (state.status.isValid || state.status.isSubmissionFailure)
               ? () => context.read<LoginBloc>().add(LoginSubmitted())
               : null,
           child: const Text('Submit'),
@@ -112,7 +112,7 @@ class _LoginState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('ETSME UC TOOLS')),
+        appBar: AppBar(title: Text(Consts().appName)),
         body: BlocListener<LoginBloc, LoginState>(
           listener: (context, state) {
             if (state.status.isSubmissionSuccess) {
@@ -129,7 +129,9 @@ class _LoginState extends State<LoginPage> {
                   const SnackBar(
                       duration: Duration(hours: 100),
                       content: ListTile(
-                        leading: CircularProgressIndicator(),
+                        leading: CircularProgressIndicator(
+                          backgroundColor: Colors.green,
+                        ),
                         title: Text(
                           'Submitting...',
                           style: TextStyle(color: Colors.white),

@@ -32,6 +32,7 @@ dependencies:
   hive:
   hive_flutter:
   sqflite:
+  meta:
   flutter_sequence_animation:
 
 
