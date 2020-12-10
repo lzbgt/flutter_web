@@ -16,11 +16,7 @@ abstract class LoginEvent extends Equatable {
   List<Object> get props => [];
 
   @override
-  String toString() {
-    final str = props.reduce(
-        (value, element) => value.toString() + ',' + element.toString());
-    return '{this: ${this.runtimeType}, $str}';
-  }
+  bool get stringify => true;
 }
 
 class PhoneChanged extends LoginEvent {
@@ -67,11 +63,7 @@ class LoginState extends Equatable {
   }
 
   @override
-  String toString() {
-    final str = props.reduce(
-        (value, element) => value.toString() + ',' + element.toString());
-    return '{this: ${this.runtimeType}, $str}';
-  }
+  bool get stringify => true;
 
   @override
   List<Object> get props => [phone, password, status, data];
