@@ -9,6 +9,16 @@ import 'package:fixnum/fixnum.dart';
 import 'package:protobuf/protobuf.dart';
 
 const version = 0x12;
+
+String dumpHexToString(List<int> data) {
+  StringBuffer sb = StringBuffer();
+  data.forEach((f) {
+    sb.write(f.toRadixString(16).padLeft(2, '0'));
+    sb.write(" ");
+  });
+  return sb.toString();
+}
+
 // test
 void main() async {
   Socket.connect('68.0.0.11', 7777).then((socket) {
@@ -19,14 +29,14 @@ void main() async {
     ApiRequest req = ApiRequest();
 
     authreq.boxToken =
-        'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEP1Ew697U5Z9NDXTRRV5B1P3bYsNSn2ozMsU76s/dciyAyPKIQaIuKGBhjRe8zxQRXB3PwI5A/cs1CRUci+BjUg==';
-    authreq.uid = Int64(226);
+        'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE7+az9k7zR+U/4tquoZS3BVlzUrIXvKTV8SWlLxv1Dz7rtccEEXhHYCGiCIm0vIfQlxU2W80evL+lXvfEskxzug==';
+    authreq.uid = Int64(266);
 
     req.content = authreq.writeToBuffer();
     req.serverVersion = version;
     req.operation = ApiOperation.AuthenticationOp;
 
-    print(req.writeToBuffer());
+    print(dumpHexToString(req.writeToBuffer()));
 
     //Establish the onData, and onDone callbacks
     socket.listen((data) {
