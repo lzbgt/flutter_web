@@ -7,6 +7,8 @@ import 'dart/box/im.pb.dart';
 import 'dart/box/account.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:protobuf/protobuf.dart';
+import "dart:typed_data";
+//import 'package:binary/binary.dart';
 
 const version = 0x12;
 
@@ -18,6 +20,14 @@ String dumpHexToString(List<int> data) {
   });
   return sb.toString();
 }
+
+Uint8List int32BigEndianBytes(int value) =>
+    Uint8List(4)..buffer.asByteData().setInt32(0, value, Endian.big);
+
+Uint8List uint32BigEndianBytes(int value) =>
+    Uint8List(4)..buffer.asByteData().setUint32(0, value, Endian.big);
+
+Uint8List encodeFrame(Int32 id, int source, Uint8List b) {}
 
 // test
 void main() async {
@@ -33,6 +43,7 @@ void main() async {
     authreq.uid = Int64(266);
 
     req.content = authreq.writeToBuffer();
+
     req.serverVersion = version;
     req.operation = ApiOperation.AuthenticationOp;
 

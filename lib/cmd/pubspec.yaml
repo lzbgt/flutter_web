@@ -23,4 +23,5 @@ environment:
 dependencies:
   fixnum:
   protobuf:
+  binary:
   
