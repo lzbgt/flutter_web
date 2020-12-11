@@ -8,12 +8,15 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:injector/injector.dart';
 import '../const/consts.dart';
 import 'widgets/home_drawer.dart';
+import 'widgets/home_body.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     //final box = Injector.appInstance.get<Box>();
+    final homeBody = HomeBodyWidget();
+
     return Scaffold(
       drawer: HomeDrawerWidget(),
       appBar: AppBar(title: Text(Consts().appName)),
@@ -21,12 +24,15 @@ class HomePage extends StatelessWidget {
         builder: (context, state) {
           if (state is DefaultHomeState) {
             return Center(
-              child: CircularProgressIndicator(),
+              child: homeBody,
             );
           }
 
           if (state is TabChangedState) {
             print('new tap state $state');
+            if (state.index == 0) {
+              return homeBody;
+            }
             return Center(
               child: Text('${state.index}'),
             );
