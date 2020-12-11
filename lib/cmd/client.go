@@ -273,9 +273,25 @@ func NewClient(addr, token string, uid int64, quitChan chan bool) *Conn {
 	return &conn
 }
 
+func usage() string {
+	return fmt.Sprintf(`
+	Commands:
+		c<ip:7777> <token> <uid>
+			login to ebox with "ip" and "token", as user "uid"
+			e.g: c68.0.0.11 MFkw...xzug== 266
+		g<group_id>
+			set conversation id to do actions
+		n<Mid> <Num>
+			list "Num" messages forward from "Mid" 
+		N<Mid> <Num>
+			list "Num" messages backword from "Mid" 	
+	`)
+}
+
 func main() {
 
 	uid := int64(266)
+	println(usage())
 	grpID := ""
 	mid := ""
 	var conn *Conn
@@ -283,11 +299,37 @@ func main() {
 	for scanner.Scan() {
 		t := scanner.Text()
 		if len(t) == 0 {
+			println(usage())
 			continue
 		}
 		if t[0] == 'g' {
 			grpID = t[1:]
-		} else if t[0] == 'n' && grpID != "" {
+			continue
+		} else if t[0] == 'c' {
+			if len(t) > 1 {
+				sp := regexp.MustCompile("[\t ]+")
+				arr := sp.Split(t[1:], -1)
+				if len(arr) == 3 {
+					uid, err := strconv.ParseInt(arr[2], 10, 64)
+					if err != nil {
+						println(err)
+					} else {
+						if conn != nil {
+							conn.q <- false
+						}
+						q := make(chan bool)
+						conn = NewClient(arr[0], arr[1], uid, q)
+					}
+				}
+			}
+		} else {
+			if grpID == "" {
+				fmt.Println("must setup groupID first by g command")
+				continue
+			}
+		}
+
+		if t[0] == 'n' && grpID != "" {
 			num := int32(0)
 			if len(t) > 1 {
 				sp := regexp.MustCompile("[\t ]+")
@@ -315,23 +357,10 @@ func main() {
 				}
 			}
 			conn.NextMsg(uid, grpID, mid, false, num)
-		} else if t[0] == 'c' {
-			if len(t) > 1 {
-				sp := regexp.MustCompile("[\t ]+")
-				arr := sp.Split(t[1:], -1)
-				if len(arr) == 3 {
-					uid, err := strconv.ParseInt(arr[2], 10, 64)
-					if err != nil {
-						println(err)
-					} else {
-						if conn != nil {
-							conn.q <- false
-						}
-						q := make(chan bool)
-						conn = NewClient(arr[0], arr[1], uid, q)
-					}
-				}
-			}
+		} else if t[0] == 'c' || t[0] == 'g' {
+
+		} else {
+			print(usage())
 		}
 	}
 }
