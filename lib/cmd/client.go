@@ -47,6 +47,7 @@ const (
 	serverSource source = 0x1
 )
 
+// FrameHeader .
 type FrameHeader struct {
 	Version  uint8     //8bit ,协议版本 0X1
 	Source   source    //1bit ,方向，0:客户端发起，1：服务端发起
