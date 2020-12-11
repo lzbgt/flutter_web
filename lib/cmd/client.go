@@ -4,9 +4,12 @@ import (
 	"bufio"
 	"encoding/binary"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"net"
 	"os"
+	"regexp"
+	"strconv"
 	"sync/atomic"
 	"time"
 
@@ -103,14 +106,15 @@ func encodeFrame(streamID int32, source source, b []byte) []byte {
 	return buf
 }
 
+// Conn .
 type Conn struct {
 	net.Conn
 	id int32
+	q  chan bool
 }
 
-const BufSize = 512
-
 func (c *Conn) receive(frameChan chan []byte) {
+	const BufSize = 512
 	buf := make([]byte, BufSize)
 	writePos := 0
 	readPos := 0
@@ -157,34 +161,17 @@ func (c *Conn) receive(frameChan chan []byte) {
 	}
 }
 
-// req := &eboxpb.ApiRequest{}
-// 	authReq := &eboxpb.AuthenticationRequest{}
-// 	authReq.BoxToken = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE7+az9k7zR+U/4tquoZS3BVlzUrIXvKTV8SWlLxv1Dz7rtccEEXhHYCGiCIm0vIfQlxU2W80evL+lXvfEskxzug=="
-// 	authReq.Uid = 266
-// 	req.Content, _ = proto.Marshal(authReq)
-// 	req.ServerVersion = 0x12
-// 	req.Operation = eboxpb.ApiOperation_AuthenticationOp
-
-// 	bs, err := proto.Marshal(req)
-
-// 	dumper := hex.Dumper(os.Stdout)
-// 	defer dumper.Close()
-// 	dumper.Write((bs))
-
-// 	n, err := conn.Write(encodeFrame(1, 0, bs))
-// 	println(n)
-// 	if err != nil {
-// 		println(err)
-// 	}
-
-/// Send .
-func (c *Conn) Send(code eboxpb.ApiOperation, m proto.Message) {
+// Send .
+func (c *Conn) Send(code eboxpb.ApiOperation, m proto.Message) bool {
 	req := &eboxpb.ApiRequest{}
 	req.Content, _ = proto.Marshal(m)
 	req.ServerVersion = 0x12
 	req.Operation = code
 
-	bs, _ := proto.Marshal(req)
+	bs, err := proto.Marshal(req)
+	if err != nil {
+		return false
+	}
 
 	dumper := hex.Dumper(os.Stdout)
 	defer dumper.Close()
@@ -195,45 +182,61 @@ func (c *Conn) Send(code eboxpb.ApiOperation, m proto.Message) {
 	println(n)
 	if err != nil {
 		println(err)
+		return false
 	}
+	return true
 }
 
 // NextMsg .
-func (c *Conn) NextMsg(uid int64, grpID, mid string, later bool) {
+func (c *Conn) NextMsg(uid int64, grpID, mid string, later bool, num int32) {
 	r := &eboxpb.ListConversationMessageRequest{}
 	r.ConversationId = grpID
 	r.StartMid = mid
-	r.Limit = 15
+	if num <= 0 {
+		num = 15
+	}
+	r.Limit = num
 	r.Later = later
 	r.Include = false
 	r.Uid = uid
 	c.Send(eboxpb.ApiOperation_ListConversationMessageOp, r)
 }
 
-func main() {
+// 	c, err := dialer.Dial("tcp4", "68.0.0.11:7777")
+// 	authReq.BoxToken = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE7+az9k7zR+U/4tquoZS3BVlzUrIXvKTV8SWlLxv1Dz7rtccEEXhHYCGiCIm0vIfQlxU2W80evL+lXvfEskxzug=="
 
-	uid := int64(266)
+// MyMessage .
+type MyMessage struct {
+	Mid  string
+	UUID string
+}
+
+// NewClient .
+func NewClient(addr, token string, uid int64, quitChan chan bool) *Conn {
 	dialer := net.Dialer{Timeout: time.Duration(5) * time.Second}
-	c, err := dialer.Dial("tcp4", "68.0.0.11:7777")
-
-	conn := Conn{c, 0}
-	defer conn.Close()
-
-	frame := make(chan []byte)
-
-	go conn.receive(frame)
-
+	c, err := dialer.Dial("tcp4", addr)
 	if err != nil {
 		println(err)
+		return nil
+	}
+
+	conn := Conn{c, 0, quitChan}
+	frame := make(chan []byte)
+	go conn.receive(frame)
+	if err != nil {
+		println(err)
+		return nil
 	}
 
 	authReq := &eboxpb.AuthenticationRequest{}
-	authReq.BoxToken = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE7+az9k7zR+U/4tquoZS3BVlzUrIXvKTV8SWlLxv1Dz7rtccEEXhHYCGiCIm0vIfQlxU2W80evL+lXvfEskxzug=="
+	authReq.BoxToken = token
 	authReq.Uid = uid
 
-	conn.Send(eboxpb.ApiOperation_AuthenticationOp, authReq)
-
+	if !conn.Send(eboxpb.ApiOperation_AuthenticationOp, authReq) {
+		return nil
+	}
 	// receiver
+
 	go func() {
 		for {
 			select {
@@ -244,32 +247,90 @@ func main() {
 				if r.Operation == eboxpb.ApiOperation_ListConversationMessageOp {
 					b := &eboxpb.ListConversationMessageResponse{}
 					proto.Unmarshal(r.Content, b)
-					fmt.Printf("%v\n", b)
+					msgs := make([]*MyMessage, len(b.Messages))
+
+					for i, v := range b.Messages {
+						m := &MyMessage{}
+						m.Mid = v.Mid
+						m.UUID = v.Uuid
+						msgs[i] = m
+					}
+					bs, _ := json.MarshalIndent(msgs, "", "\t")
+
+					fmt.Println(string(bs))
 				}
 
+			case <-conn.q:
+				conn.Close()
+				return
 			default:
 				time.Sleep(time.Duration(100))
 			}
 		}
 	}()
 
+	return &conn
+}
+
+func main() {
+
+	uid := int64(266)
 	grpID := ""
 	mid := ""
+	var conn *Conn
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		t := scanner.Text()
+		if len(t) == 0 {
+			continue
+		}
 		if t[0] == 'g' {
 			grpID = t[1:]
 		} else if t[0] == 'n' && grpID != "" {
+			num := int32(0)
 			if len(t) > 1 {
-				mid = t[1:]
+				sp := regexp.MustCompile("[\t ]+")
+				arr := sp.Split(t[1:], -1)
+				if len(arr) >= 1 {
+					mid = arr[0]
+				}
+				if len(arr) >= 2 {
+					u, _ := strconv.Atoi(arr[1])
+					num = int32(u)
+				}
 			}
-			conn.NextMsg(uid, grpID, mid, true)
+			conn.NextMsg(uid, grpID, mid, true, num)
 		} else if t[0] == 'N' && grpID != "" {
+			num := int32(0)
 			if len(t) > 1 {
-				mid = t[1:]
+				sp := regexp.MustCompile("[\t ]+")
+				arr := sp.Split(t[1:], -1)
+				if len(arr) >= 1 {
+					mid = arr[0]
+				}
+				if len(arr) >= 2 {
+					u, _ := strconv.Atoi(arr[1])
+					num = int32(u)
+				}
 			}
-			conn.NextMsg(uid, grpID, mid, false)
+			conn.NextMsg(uid, grpID, mid, false, num)
+		} else if t[0] == 'c' {
+			if len(t) > 1 {
+				sp := regexp.MustCompile("[\t ]+")
+				arr := sp.Split(t[1:], -1)
+				if len(arr) == 3 {
+					uid, err := strconv.ParseInt(arr[2], 10, 64)
+					if err != nil {
+						println(err)
+					} else {
+						if conn != nil {
+							conn.q <- false
+						}
+						q := make(chan bool)
+						conn = NewClient(arr[0], arr[1], uid, q)
+					}
+				}
+			}
 		}
 	}
 }
