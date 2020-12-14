@@ -22,31 +22,36 @@ class HomeBodyWidget extends StatelessWidget {
               ),
             ),
           ),
-          ListTile(
-            leading: Icon(Icons.text_fields),
-            title: TextFormField(onTap: () {
-              print('editor tap');
-              showDialog(
-                context: context,
-                builder: (_) {
-                  return Dialog(
-                    insetPadding: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 2 / 6,
-                      left: 80.0,
-                      right: 80.0,
-                      bottom: 80.0,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: FuncPickWdiget(),
-                  );
-                },
-              );
-            }),
-            trailing: RaisedButton(
-              onPressed: () {},
-              child: Text('Send'),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Icon(Icons.text_fields),
+                Expanded(child: TextFormField()),
+                FlatButton(
+                    child: Icon(Icons.menu),
+                    onPressed: () {
+                      print('editor tap');
+                      showDialog(
+                        context: context,
+                        builder: (_) {
+                          return Dialog(
+                            insetPadding: EdgeInsets.only(
+                              top: MediaQuery.of(context).size.height * 2 / 6,
+                              left: 80.0,
+                              right: 80.0,
+                              bottom: 80.0,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: FuncPickWdiget(),
+                          );
+                        },
+                      );
+                    }),
+                RaisedButton(onPressed: () {}, child: Text('Send')),
+              ],
             ),
           )
         ],

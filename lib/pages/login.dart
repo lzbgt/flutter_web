@@ -40,21 +40,23 @@ class PasswordWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(builder: (context, state) {
       return TextFormField(
-        initialValue: state.password.value,
-        focusNode: focusNode,
-        obscureText: true,
-        decoration: InputDecoration(
-            icon: const Icon(Icons.security_rounded),
-            labelText: 'Password',
-            helperText: 'password used to login to JIRA',
-            errorText:
-                state.phone.valid ? null : 'password used to login to JIRA'),
-        keyboardType: TextInputType.visiblePassword,
-        textInputAction: TextInputAction.done,
-        onChanged: (value) {
-          context.read<LoginBloc>().add(PasswordChanged(password: value));
-        },
-      );
+          initialValue: state.password.value,
+          focusNode: focusNode,
+          obscureText: true,
+          decoration: InputDecoration(
+              icon: const Icon(Icons.security_rounded),
+              labelText: 'Password',
+              helperText: 'password used to login to JIRA',
+              errorText:
+                  state.phone.valid ? null : 'password used to login to JIRA'),
+          keyboardType: TextInputType.visiblePassword,
+          textInputAction: TextInputAction.done,
+          onChanged: (value) {
+            context.read<LoginBloc>().add(PasswordChanged(password: value));
+          },
+          onFieldSubmitted: (value) {
+            context.read<LoginBloc>().add(LoginSubmitted());
+          });
     });
   }
 }
@@ -119,7 +121,9 @@ class _LoginState extends State<LoginPage> {
               ScaffoldMessenger.of(context)
                 ..hideCurrentSnackBar()
                 ..showSnackBar(
-                  const SnackBar(content: Text('login success')),
+                  const SnackBar(
+                      duration: Duration(milliseconds: 700),
+                      content: Text('login success')),
                 );
               Navigator.of(context).popAndPushNamed('/home');
             } else if (state.status.isSubmissionInProgress) {
