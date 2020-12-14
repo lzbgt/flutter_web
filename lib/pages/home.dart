@@ -22,7 +22,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(title: Text(Consts().appName)),
       body: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
-          if (state is DefaultHomeState || state is FuncPickState) {
+          if (state is DefaultHomeState || state is NewFuncModState) {
             return Center(
               child: homeBody,
             );

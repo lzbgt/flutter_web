@@ -60,16 +60,16 @@ class TabChangedState extends HomeState {
   }
 }
 
-class FuncPickEvent extends HomeEvent {
-  const FuncPickEvent({this.data});
+class NewFuncModEvent extends HomeEvent {
+  const NewFuncModEvent({this.data});
   final FuncItemData data;
 
   @override
   List<Object> get props => [data];
 }
 
-class FuncPickState extends HomeState {
-  FuncPickState({this.data});
+class NewFuncModState extends HomeState {
+  NewFuncModState({@required this.data});
   final FuncItemData data;
   final int ctime = DateTime.now().millisecondsSinceEpoch;
   @override
@@ -87,9 +87,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       print('TabTappedEvent $event');
       this.tabIdx = event.index;
       yield TabChangedState(index: this.tabIdx);
-    } else if (event is FuncPickEvent) {
-      print('FuncPickEvent $event');
-      yield FuncPickState(data: event.data);
+    } else if (event is NewFuncModEvent) {
+      print('NewFuncModEvent $event');
+      yield NewFuncModState(data: event.data);
     } else {
       throw UnimplementedError();
     }
