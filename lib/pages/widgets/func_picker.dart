@@ -25,6 +25,7 @@ class _FuncPickWdigetState extends State<FuncPickWdiget> {
       itemBuilder: (BuildContext context, int index) {
         print('_buildGridViewBuilder $index');
         return FuncWidget(
+            index: index,
             itemData: widget.funcList[index],
             isShort: true,
             onTap: (data) {

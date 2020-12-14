@@ -6,10 +6,12 @@ typedef dynamic FuncItemDataCallBack(FuncItemData value);
 class FuncWidget extends StatelessWidget {
   const FuncWidget(
       {Key key,
+      @required this.index,
       @required this.itemData,
       @required this.isShort,
       @required this.onTap})
       : super(key: key);
+  final int index;
   final FuncItemData itemData;
   final bool isShort;
   final FuncItemDataCallBack onTap;
@@ -39,7 +41,7 @@ class FuncWidget extends StatelessWidget {
           ],
         ),
         onTap: () {
-          print('idx ${itemData.index}');
+          print('idx $index');
           // Navigator.pop(context, itemData.index);
           onTap(itemData);
         },

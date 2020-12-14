@@ -46,6 +46,7 @@ class _HomeBodyWidgetState extends State<HomeBodyWidget> {
                   itemCount: widget.viewData.length,
                   itemBuilder: (context, index) {
                     return FuncWidget(
+                      index: index,
                       itemData: widget.viewData[index],
                       isShort: false,
                       onTap: (_) => {},
