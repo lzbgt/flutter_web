@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../bloc/home/home_bloc.dart';
 
 class FuncPickWdiget extends StatefulWidget {
   FuncPickWdiget({
@@ -44,7 +46,8 @@ class _FuncPickWdigetState extends State<FuncPickWdiget> {
               ],
             ),
             onTap: () {
-              print('Row $index');
+              print('idx $index');
+              Navigator.pop(context, index);
             },
           ),
         );

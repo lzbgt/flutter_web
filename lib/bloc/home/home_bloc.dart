@@ -59,6 +59,21 @@ class TabChangedState extends HomeState {
   }
 }
 
+class FuncPickEvent extends HomeEvent {
+  const FuncPickEvent({this.index});
+  final int index;
+
+  @override
+  List<Object> get props => [index];
+}
+
+class FuncPickState extends HomeState {
+  const FuncPickState({this.index});
+  final int index;
+  @override
+  List<Object> get props => [index];
+}
+
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   int tabIdx;
   HomeBloc({this.tabIdx = 0}) : super(const DefaultHomeState());
@@ -70,6 +85,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       print('TabTappedEvent $event');
       this.tabIdx = event.index;
       yield TabChangedState(index: this.tabIdx);
+    } else if (event is FuncPickEvent) {
+      print('FuncPickEvent $event');
+      yield FuncPickState(index: event.index);
     } else {
       throw UnimplementedError();
     }

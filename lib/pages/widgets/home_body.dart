@@ -30,11 +30,11 @@ class HomeBodyWidget extends StatelessWidget {
                 Expanded(child: TextFormField()),
                 FlatButton(
                     child: Icon(Icons.menu),
-                    onPressed: () {
+                    onPressed: () async {
                       print('editor tap');
-                      showDialog(
+                      var index = await showDialog(
                         context: context,
-                        builder: (_) {
+                        builder: (context) {
                           return Dialog(
                             insetPadding: EdgeInsets.only(
                               top: MediaQuery.of(context).size.height * 2 / 6,
@@ -49,6 +49,7 @@ class HomeBodyWidget extends StatelessWidget {
                           );
                         },
                       );
+                      context.read<HomeBloc>().add(FuncPickEvent(index: index));
                     }),
                 RaisedButton(onPressed: () {}, child: Text('Send')),
               ],
