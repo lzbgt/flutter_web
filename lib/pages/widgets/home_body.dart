@@ -1,24 +1,44 @@
+import 'package:etstool/pages/widgets/func_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/home/home_bloc.dart';
 import 'func_picker.dart';
+import '../../model/home/func.dart';
 
-class HomeBodyWidget extends StatelessWidget {
+class HomeBodyWidget extends StatefulWidget {
   const HomeBodyWidget();
+
+  @override
+  _HomeBodyWidgetState createState() => _HomeBodyWidgetState();
+}
+
+class _HomeBodyWidgetState extends State<HomeBodyWidget> {
+  final List viewData = [];
   @override
   Widget build(BuildContext context) {
     return BlocListener<HomeBloc, HomeState>(
-      listener: (context, state) {},
+      listener: (context, state) {
+        if (state is FuncPickState) {
+          print('FuncPickState $state');
+          viewData.add(state.data);
+          print(viewData);
+        }
+      },
       child: Column(
         children: [
           Expanded(
             child: SizedBox(
               height: MediaQuery.of(context).size.height * 2 / 3,
-              child: ListView(
-                children: [
-                  ListTile(title: Text('tt')),
-                ],
+              child: ListView.builder(
+                itemCount: viewData.length,
+                itemBuilder: (context, index) {
+                  return FuncWidget(
+                    itemData: viewData[index],
+                    isShort: false,
+                    onTap: (_) => {},
+                  );
+                },
               ),
             ),
           ),
@@ -49,7 +69,8 @@ class HomeBodyWidget extends StatelessWidget {
                           );
                         },
                       );
-                      context.read<HomeBloc>().add(FuncPickEvent(index: index));
+                      context.read<HomeBloc>().add(FuncPickEvent(
+                          data: FuncItemData(icon: Icons.ac_unit, index: 0)));
                     }),
                 RaisedButton(onPressed: () {}, child: Text('Send')),
               ],

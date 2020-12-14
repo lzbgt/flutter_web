@@ -1,6 +1,6 @@
+import 'package:etstool/model/home/func.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../bloc/home/home_bloc.dart';
+import 'func_widget.dart';
 
 class FuncPickWdiget extends StatefulWidget {
   FuncPickWdiget({
@@ -23,34 +23,12 @@ class _FuncPickWdigetState extends State<FuncPickWdiget> {
           SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 150.0),
       itemBuilder: (BuildContext context, int index) {
         print('_buildGridViewBuilder $index');
-        return Card(
-          color: Colors.lightGreen.shade50,
-          margin: EdgeInsets.all(8.0),
-          child: InkWell(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Icon(
-                  widget._iconList[index],
-                  size: 48.0,
-                  color: Colors.lightGreen,
-                ),
-                Divider(),
-                Text(
-                  'Index $index',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16.0,
-                  ),
-                )
-              ],
-            ),
-            onTap: () {
-              print('idx $index');
-              Navigator.pop(context, index);
-            },
-          ),
-        );
+        return FuncWidget(
+            itemData: FuncItemData(icon: widget._iconList[index], index: index),
+            isShort: true,
+            onTap: (data) {
+              Navigator.pop(context, data.index);
+            });
       },
     );
   }

@@ -7,6 +7,7 @@ import 'package:hive/hive.dart';
 import '../../const/consts.dart';
 import '../../service/api.dart';
 import '../../service/impl/api.dart';
+import '../../model/home/func.dart';
 
 abstract class HomeEvent extends Equatable {
   const HomeEvent();
@@ -60,18 +61,24 @@ class TabChangedState extends HomeState {
 }
 
 class FuncPickEvent extends HomeEvent {
-  const FuncPickEvent({this.index});
-  final int index;
+  const FuncPickEvent({this.data});
+  final FuncItemData data;
 
   @override
-  List<Object> get props => [index];
+  List<Object> get props => [data];
 }
 
 class FuncPickState extends HomeState {
-  const FuncPickState({this.index});
-  final int index;
+  const FuncPickState({this.data});
+  final FuncItemData data;
   @override
-  List<Object> get props => [index];
+  List<Object> get props => [data];
+
+  @override
+  bool operator ==(Object o) => false;
+
+  @override
+  int get hashCode => super.hashCode;
 }
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
@@ -87,7 +94,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       yield TabChangedState(index: this.tabIdx);
     } else if (event is FuncPickEvent) {
       print('FuncPickEvent $event');
-      yield FuncPickState(index: event.index);
+      yield FuncPickState(data: event.data);
     } else {
       throw UnimplementedError();
     }
