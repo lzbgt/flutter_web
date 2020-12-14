@@ -69,16 +69,11 @@ class FuncPickEvent extends HomeEvent {
 }
 
 class FuncPickState extends HomeState {
-  const FuncPickState({this.data});
+  FuncPickState({this.data});
   final FuncItemData data;
+  final int ctime = DateTime.now().millisecondsSinceEpoch;
   @override
-  List<Object> get props => [data];
-
-  @override
-  bool operator ==(Object o) => false;
-
-  @override
-  int get hashCode => super.hashCode;
+  List<Object> get props => [data, ctime];
 }
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {

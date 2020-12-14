@@ -7,22 +7,23 @@ import 'func_picker.dart';
 import '../../model/home/func.dart';
 
 class HomeBodyWidget extends StatefulWidget {
-  const HomeBodyWidget();
+  HomeBodyWidget();
+  final List viewData = [];
 
   @override
   _HomeBodyWidgetState createState() => _HomeBodyWidgetState();
 }
 
 class _HomeBodyWidgetState extends State<HomeBodyWidget> {
-  final List viewData = [];
   @override
   Widget build(BuildContext context) {
+    print("build ${widget.viewData}");
     return BlocListener<HomeBloc, HomeState>(
       listener: (context, state) {
         if (state is FuncPickState) {
           print('FuncPickState $state');
-          viewData.add(state.data);
-          print(viewData);
+          widget.viewData.add(state.data);
+          print(widget.viewData);
         }
       },
       child: Column(
@@ -31,10 +32,10 @@ class _HomeBodyWidgetState extends State<HomeBodyWidget> {
             child: SizedBox(
               height: MediaQuery.of(context).size.height * 2 / 3,
               child: ListView.builder(
-                itemCount: viewData.length,
+                itemCount: widget.viewData.length,
                 itemBuilder: (context, index) {
                   return FuncWidget(
-                    itemData: viewData[index],
+                    itemData: widget.viewData[index],
                     isShort: false,
                     onTap: (_) => {},
                   );
@@ -70,7 +71,8 @@ class _HomeBodyWidgetState extends State<HomeBodyWidget> {
                         },
                       );
                       context.read<HomeBloc>().add(FuncPickEvent(
-                          data: FuncItemData(icon: Icons.ac_unit, index: 0)));
+                          data:
+                              FuncItemData(icon: Icons.ac_unit, index: index)));
                     }),
                 RaisedButton(onPressed: () {}, child: Text('Send')),
               ],

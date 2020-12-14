@@ -11,11 +11,11 @@ import 'widgets/home_drawer.dart';
 import 'widgets/home_body.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({key}) : super(key: key);
+  const HomePage({key, @required this.homeBody}) : super(key: key);
+  final HomeBodyWidget homeBody;
   @override
   Widget build(BuildContext context) {
     //final box = Injector.appInstance.get<Box>();
-    final homeBody = HomeBodyWidget();
 
     return Scaffold(
       drawer: HomeDrawerWidget(),
@@ -31,7 +31,9 @@ class HomePage extends StatelessWidget {
           if (state is TabChangedState) {
             print('new tap state $state');
             if (state.index == 0) {
-              return homeBody;
+              return Center(
+                child: homeBody,
+              );
             }
             return Center(
               child: Text('${state.index}'),

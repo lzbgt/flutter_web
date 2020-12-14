@@ -1,3 +1,4 @@
+import 'package:etstool/pages/widgets/home_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injector/injector.dart';
@@ -21,7 +22,9 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  MyApp();
   // This widget is the root of your application.
+  final homeBodyWidget = HomeBodyWidget();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -32,7 +35,9 @@ class MyApp extends StatelessWidget {
               create: (_) => LoginBloc(), child: LoginPage()),
           '/home': (context) => BlocProvider<HomeBloc>(
                 create: (_) => HomeBloc(),
-                child: HomePage(),
+                child: HomePage(
+                  homeBody: homeBodyWidget,
+                ),
               ),
         });
   }
