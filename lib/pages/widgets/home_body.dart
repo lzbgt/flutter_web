@@ -2,16 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/home/home_bloc.dart';
+import 'func_picker.dart';
 
 class HomeBodyWidget extends StatelessWidget {
-  HomeBodyWidget();
-  final _shortcutsWidget = <Widget>[
-    for (var i = 0; i < 10; i++)
-      FlatButton(
-        onPressed: () {},
-        child: Icon(Icons.bubble_chart),
-      ),
-  ];
+  const HomeBodyWidget();
   @override
   Widget build(BuildContext context) {
     return BlocListener<HomeBloc, HomeState>(
@@ -35,20 +29,18 @@ class HomeBodyWidget extends StatelessWidget {
               showDialog(
                 context: context,
                 builder: (_) {
-                  return SizedBox(
-                      width: MediaQuery.of(context).size.width * 3 / 5,
-                      height: MediaQuery.of(context).size.height * 3 / 5,
-                      child: GridView.count(
-                        crossAxisCount: 10,
-                        children: List.generate(100, (index) {
-                          return Center(
-                            child: Text(
-                              'Item $index',
-                              style: Theme.of(context).textTheme.headline5,
-                            ),
-                          );
-                        }),
-                      ));
+                  return Dialog(
+                    insetPadding: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height * 2 / 6,
+                      left: 80.0,
+                      right: 80.0,
+                      bottom: 80.0,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: FuncPickWdiget(),
+                  );
                 },
               );
             }),
