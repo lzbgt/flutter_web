@@ -9,6 +9,7 @@ import '../../model/home/func.dart';
 class HomeBodyWidget extends StatefulWidget {
   HomeBodyWidget();
   final List viewData = [];
+  final List<FuncItemData> funcList = [];
 
   @override
   _HomeBodyWidgetState createState() => _HomeBodyWidgetState();
@@ -30,8 +31,12 @@ class _HomeBodyWidgetState extends State<HomeBodyWidget> {
         //   },
         if (state is NewFuncModState) {
           widget.viewData.add(state.data);
+        } else if (state is DefaultHomeState) {
+          widget.funcList.clear();
+          widget.funcList.addAll(state.funcList);
         }
 
+        print("funcList ${widget.funcList}");
         print("build2 ${widget.viewData}");
         return Column(
           children: [
@@ -73,7 +78,7 @@ class _HomeBodyWidgetState extends State<HomeBodyWidget> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: FuncPickWdiget(),
+                              child: FuncPickWdiget(funcList: widget.funcList),
                             );
                           },
                         );

@@ -1,6 +1,7 @@
 import 'dart:async';
 //import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
+import 'package:etstool/model/home/func.dart';
 import 'dart:convert';
 import '../api.dart';
 
@@ -8,6 +9,7 @@ import 'package:hive/hive.dart';
 import 'package:injector/injector.dart';
 import '../../const/consts.dart';
 import '../../model/common/message.dart';
+import 'package:flutter/material.dart';
 
 class ProdAPI implements API {
   const ProdAPI({this.baseUrl = 'http://121.41.121.222:9090'});
@@ -35,5 +37,13 @@ class ProdAPI implements API {
     } finally {}
 
     return RespMessage(code: 0, data: tok);
+  }
+
+  @override
+  List<FuncItemData> getFuncMods() {
+    return <FuncItemData>[
+      FuncItemData(icon: Icons.info, index: 0),
+      FuncItemData(icon: Icons.unsubscribe, index: 1),
+    ];
   }
 }

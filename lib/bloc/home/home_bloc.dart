@@ -45,7 +45,8 @@ abstract class HomeState extends Equatable {
 }
 
 class DefaultHomeState extends HomeState {
-  const DefaultHomeState();
+  final List<FuncItemData> funcList;
+  const DefaultHomeState({@required this.funcList});
 }
 
 class TabChangedState extends HomeState {
@@ -78,11 +79,13 @@ class NewFuncModState extends HomeState {
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   int tabIdx;
-  HomeBloc({this.tabIdx = 0}) : super(const DefaultHomeState());
+  final API api;
+  HomeBloc({this.tabIdx = 0, this.api: const ProdAPI()})
+      : super(DefaultHomeState(funcList: api.getFuncMods()));
   @override
   Stream<HomeState> mapEventToState(HomeEvent event) async* {
     if (event is DefaultHomeEvent) {
-      yield DefaultHomeState();
+      yield DefaultHomeState(funcList: api.getFuncMods());
     } else if (event is TabTappedEvent) {
       print('TabTappedEvent $event');
       this.tabIdx = event.index;
