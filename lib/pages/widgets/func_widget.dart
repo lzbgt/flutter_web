@@ -19,7 +19,11 @@ class FuncWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 6.0,
       color: Colors.lightGreen.shade50,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
       margin: EdgeInsets.all(8.0),
       child: InkWell(
         child: Column(
@@ -33,7 +37,7 @@ class FuncWidget extends StatelessWidget {
               ),
               title: Text(itemData.title),
               subtitle: TextFormField(),
-              trailing: FlatButton(
+              trailing: RaisedButton(
                 onPressed: () {},
                 child: Text('Submit'),
               ),
