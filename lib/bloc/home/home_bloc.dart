@@ -76,7 +76,15 @@ class NewFuncModState extends HomeState {
   List<Object> get props => [data, ctime];
 }
 
-class FuncModSubmitted extends HomeEvent {}
+class FuncModSubmitted extends HomeEvent {
+  final int index;
+  const FuncModSubmitted({this.index});
+
+  @override
+  List<Object> get props => [index];
+}
+
+class FuncModResultState extends HomeState {}
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   int tabIdx;
@@ -84,9 +92,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   // history
   final List viewData = [];
   final List<FuncItemData> funcList = [];
+  final box = Injector.appInstance.get<Box>();
+  final consts = Consts();
+  String token = '';
   HomeBloc({this.tabIdx = 0, this.api: const ProdAPI()})
       : super(DefaultHomeState()) {
     funcList.addAll(api.getFuncMods());
+    token = box.get(consts.authTokenKey);
   }
 
   @override
@@ -103,6 +115,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       print('NewFuncModEvent $event');
       viewData.add(event.data);
       yield NewFuncModState(data: event.data);
+    } else if (event is FuncModSubmitted) {
+      print('FuncModSubmitted $event');
+      // query api
+
+      yield FuncModResultState();
     } else {
       throw UnimplementedError();
     }
