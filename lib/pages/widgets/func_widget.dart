@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:etstool/bloc/home/home_bloc.dart';
 import 'package:etstool/model/common/api_dt.dart';
 import 'package:etstool/model/common/message.dart';
@@ -34,6 +36,16 @@ abstract class FuncWidget extends StatelessWidget {
 
   dynamic getReqValue(FuncItemData data);
   dynamic getResValue(FuncItemData data);
+  Widget buildReqWgt(FuncItemData data);
+  Widget buildResWgt(FuncItemData data) {
+    return Text(
+      getResValue(itemData)?.toString() ?? itemData.title,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 16.0,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,13 +79,7 @@ abstract class FuncWidget extends StatelessWidget {
               ),
             ),
             Divider(),
-            Text(
-              getResValue(itemData)?.toString() ?? itemData.title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16.0,
-              ),
-            )
+            buildResWgt(itemData),
           ],
         ),
         onTap: () {
@@ -128,10 +134,29 @@ class UserInfoFuncWidget extends FuncWidget {
         if (d.res is RespMessage) {
           return (d.res as RespMessage).message;
         } else {
-          return (d.res as List<UserDeviceInfo>).toString();
+          print('res: $d.res');
+          return (d.res as List<UserDeviceInfo>);
         }
       }
     }
     return null;
+  }
+
+  @override
+  Widget buildReqWgt(FuncItemData data) {
+    // TODO: implement buildReq
+    throw UnimplementedError();
+  }
+
+  @override
+  Widget buildResWgt(FuncItemData data) {
+    return Text(
+      JsonEncoder.withIndent('    ').convert(getResValue(itemData)) ??
+          itemData.title,
+      textAlign: TextAlign.left,
+      style: TextStyle(
+        fontSize: 16.0,
+      ),
+    );
   }
 }

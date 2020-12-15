@@ -23,6 +23,7 @@ class UserDeviceInfo extends Equatable {
   final String status;
   final String networkId;
   final String boxDeviceId;
+  final String boxNodeIp;
   final String boxNodeId;
   final String boxDeviceName;
   final int roleType;
@@ -35,6 +36,7 @@ class UserDeviceInfo extends Equatable {
       this.status,
       @required this.networkId,
       this.boxDeviceId,
+      this.boxNodeIp,
       this.boxNodeId,
       this.boxDeviceName,
       this.roleType,
@@ -49,6 +51,7 @@ class UserDeviceInfo extends Equatable {
         status,
         networkId,
         boxDeviceId,
+        boxNodeIp,
         boxNodeId,
         boxDeviceName,
         roleType,
@@ -66,11 +69,28 @@ class UserDeviceInfo extends Equatable {
         status = json['Status'],
         networkId = json['NetworkID'],
         boxDeviceId = json['BoxDeviceID'],
+        boxNodeIp = json['BoxNodeIP'],
         boxNodeId = json['BoxNodeID'],
         boxDeviceName = json['BoxDeviceName'],
         roleType = json['RoleType'],
         gmGroupId = json['GMGroupID'],
         gmGroupOwnerNwId = json['GMGroupOwnerNwid'];
+
+  Map toJson() {
+    return {
+      "UID": uid,
+      "Mobile": mobile,
+      "Status": status,
+      "NetworkID": networkId,
+      "BoxDeviceID": boxDeviceId,
+      "BoxNodeIP": boxNodeIp,
+      "BoxNodeID": boxNodeId,
+      "BoxDeviceName": boxDeviceName,
+      "RoleType": roleType,
+      "GMGroupID": gmGroupId,
+      "GMGroupOwnerNwid": gmGroupOwnerNwId
+    };
+  }
 }
 
 class UserDeviceInfoRequest extends Equatable {
