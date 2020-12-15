@@ -1,6 +1,6 @@
 import 'package:etstool/model/home/func.dart';
 import 'package:flutter/material.dart';
-import 'func_widget.dart';
+import 'func_card.dart';
 
 class FuncPickWdiget extends StatefulWidget {
   FuncPickWdiget({
@@ -24,7 +24,7 @@ class _FuncPickWdigetState extends State<FuncPickWdiget> {
           SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 150.0),
       itemBuilder: (BuildContext context, int index) {
         print('_buildGridViewBuilder $index');
-        return FuncWidget(
+        return FuncCard(
             index: index,
             itemData: widget.funcList[index],
             isShort: true,

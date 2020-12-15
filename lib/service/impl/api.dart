@@ -42,8 +42,8 @@ class ProdAPI implements API {
   @override
   List<FuncItemData> getFuncMods() {
     return <FuncItemData>[
-      FuncItemData(icon: Icons.info, index: 0),
-      FuncItemData(icon: Icons.unsubscribe, index: 1),
+      FuncItemData(title: 'Query Info', icon: Icons.info, index: 0),
+      FuncItemData(title: 'Unbind Device', icon: Icons.unsubscribe, index: 1),
     ];
   }
 }

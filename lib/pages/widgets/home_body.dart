@@ -1,4 +1,4 @@
-import 'package:etstool/pages/widgets/func_widget.dart';
+import 'package:etstool/pages/widgets/func_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/home/home_bloc.dart';
@@ -45,7 +45,7 @@ class _HomeBodyWidgetState extends State<HomeBodyWidget> {
                 child: ListView.builder(
                   itemCount: widget.viewData.length,
                   itemBuilder: (context, index) {
-                    return FuncWidget(
+                    return FuncCard(
                       index: index,
                       itemData: widget.viewData[index],
                       isShort: false,

@@ -3,8 +3,8 @@ import '../../model/home/func.dart';
 
 typedef dynamic FuncItemDataCallBack(FuncItemData value);
 
-class FuncWidget extends StatelessWidget {
-  const FuncWidget(
+class FuncCard extends StatelessWidget {
+  const FuncCard(
       {Key key,
       @required this.index,
       @required this.itemData,
@@ -32,7 +32,7 @@ class FuncWidget extends StatelessWidget {
             ),
             Divider(),
             Text(
-              'Index ${itemData.index}',
+              itemData.title,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16.0,
