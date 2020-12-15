@@ -23,6 +23,7 @@ abstract class FuncWidget extends StatelessWidget {
   }
   final int index;
   final FuncItemData itemData;
+  final ctime = DateTime.now();
   final bool isShort;
   final _textController = TextEditingController();
   final Bloc bloc;
@@ -55,7 +56,12 @@ abstract class FuncWidget extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      margin: EdgeInsets.all(8.0),
+      margin: EdgeInsets.only(
+        top: 14.0,
+        left: 8.0,
+        right: 8.0,
+        bottom: 8.0,
+      ),
       child: InkWell(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
