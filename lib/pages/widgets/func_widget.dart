@@ -151,8 +151,9 @@ class UserInfoFuncWidget extends FuncWidget {
   @override
   Widget buildResWgt(FuncItemData data) {
     return Text(
-      JsonEncoder.withIndent('    ').convert(getResValue(itemData)) ??
-          itemData.title,
+      itemData.data == null
+          ? itemData.title
+          : JsonEncoder.withIndent('    ').convert(getResValue(itemData)),
       textAlign: TextAlign.left,
       style: TextStyle(
         fontSize: 16.0,
