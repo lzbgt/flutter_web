@@ -17,4 +17,13 @@ class FuncItemData extends Equatable {
 
   @override
   bool get stringify => true;
+
+  FuncItemData copyWith(
+      {int index, String title, IconData icon, dynamic data}) {
+    return FuncItemData(
+        index: index ?? this.index,
+        title: title ?? this.title,
+        icon: icon ?? this.icon,
+        data: data ?? this.data);
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:etstool/model/common/api_dt.dart';
 import 'package:etstool/pages/widgets/func_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,17 +19,18 @@ class _HomeBodyWidgetState extends State<HomeBodyWidget> {
   Widget build(BuildContext context) {
     // final box = Injector.appInstance.get<Box>();
     return BlocBuilder<HomeBloc, HomeState>(
-      buildWhen: (previous, current) => current is NewFuncModState,
+      buildWhen: (previous, current) => true,
+      //previous != current,
+      // current is NewFuncModState || current is FuncModResultState,
       builder: (context, state) {
         final funcList = context.select((HomeBloc value) => value.funcList);
         final viewData = context.select((HomeBloc value) => value.viewData);
         print("funcList $funcList");
-        print("viewData $viewData");
+        print("viewData2 $viewData");
         if (state is NewFuncModState) {
-          // bloc.viewData.add(state.data);
         } else if (state is DefaultHomeState) {
-          // widget.funcList.clear();
-          // widget.funcList.addAll(state.funcList);
+        } else if (state is FuncModResultState) {
+          print('new state $state');
         }
 
         return Column(
@@ -39,11 +41,11 @@ class _HomeBodyWidgetState extends State<HomeBodyWidget> {
                 child: ListView.builder(
                   itemCount: viewData.length,
                   itemBuilder: (context, index) {
-                    return FuncWidget(
+                    return UserInfoFuncWidget(
                       index: index,
+                      bloc: context.read<HomeBloc>(),
                       itemData: viewData[index],
                       isShort: false,
-                      onTap: (_) => {},
                     );
                   },
                 ),

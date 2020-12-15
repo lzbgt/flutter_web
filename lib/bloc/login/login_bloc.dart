@@ -72,6 +72,7 @@ class LoginState extends Equatable {
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc({this.api: const ProdAPI()}) : super(const LoginState());
   final API api;
+  final box = Injector.appInstance.get<Box>();
 
   @override
   Stream<LoginState> mapEventToState(LoginEvent event) async* {

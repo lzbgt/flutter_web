@@ -1,20 +1,33 @@
+import 'package:etstool/bloc/home/home_bloc.dart';
+import 'package:etstool/model/common/api_dt.dart';
 import 'package:flutter/material.dart';
 import '../../model/home/func.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef dynamic FuncItemDataCallBack(FuncItemData value);
 
-class FuncWidget extends StatelessWidget {
-  const FuncWidget(
-      {Key key,
-      @required this.index,
-      @required this.itemData,
-      @required this.isShort,
-      @required this.onTap})
-      : super(key: key);
+abstract class FuncWidget extends StatelessWidget {
+  FuncWidget({
+    Key key,
+    @required this.index,
+    @required this.itemData,
+    @required this.isShort,
+    @required this.bloc,
+    // this.onTap,
+    // this.onSubmmit,
+  }) : super(key: key);
   final int index;
   final FuncItemData itemData;
   final bool isShort;
-  final FuncItemDataCallBack onTap;
+  final _textController = TextEditingController();
+  final Bloc bloc;
+  // final FuncItemDataCallBack onTap;
+  // final FuncItemDataCallBack onSubmmit;
+
+  /// has to be provided by concrete class
+  dynamic onTap(FuncItemData value);
+
+  dynamic onSubmit(FuncItemData value, String formValue);
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +49,14 @@ class FuncWidget extends StatelessWidget {
                 color: Colors.lightGreen,
               ),
               title: Text(itemData.title),
-              subtitle: TextFormField(),
+              subtitle: TextFormField(
+                controller: _textController,
+              ),
               trailing: RaisedButton(
-                onPressed: () {},
+                onPressed: () {
+                  print('submit pressed');
+                  onSubmit(itemData, _textController.text);
+                },
                 child: Text('Submit'),
               ),
             ),
@@ -60,4 +78,29 @@ class FuncWidget extends StatelessWidget {
       ),
     );
   }
+}
+
+class UserInfoFuncWidget extends FuncWidget {
+  UserInfoFuncWidget({
+    int index,
+    Bloc bloc,
+    FuncItemData itemData,
+    bool isShort,
+  }) : super(
+          index: index,
+          bloc: bloc,
+          itemData: itemData,
+          isShort: isShort,
+        );
+
+  @override
+  onSubmit(FuncItemData item, String formValue) {
+    bloc.add(FuncModSubmitted(
+      index: index,
+      req: UserDeviceInfoRequest(env: 'prod', field: formValue),
+    ));
+  }
+
+  @override
+  onTap(FuncItemData value) {}
 }

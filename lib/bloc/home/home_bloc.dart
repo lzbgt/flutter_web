@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:etstool/model/common/api_dt.dart';
+import 'package:etstool/model/common/message.dart';
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:injector/injector.dart';
 import 'package:hive/hive.dart';
@@ -78,13 +81,26 @@ class NewFuncModState extends HomeState {
 
 class FuncModSubmitted extends HomeEvent {
   final int index;
-  const FuncModSubmitted({this.index});
+  final dynamic req;
+  const FuncModSubmitted({this.index, this.req});
 
   @override
-  List<Object> get props => [index];
+  List<Object> get props => [index, req];
+
+  FuncModSubmitted copyWith({int index, dynamic req, dynamic res}) {
+    return FuncModSubmitted(
+      index: index ?? this.index,
+      req: req ?? this.req,
+    );
+  }
 }
 
-class FuncModResultState extends HomeState {}
+class FuncModResultState extends HomeState {
+  final int ctime;
+  FuncModResultState() : ctime = DateTime.now().millisecondsSinceEpoch;
+  @override
+  List<Object> get props => [ctime];
+}
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   int tabIdx;
@@ -117,10 +133,32 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       yield NewFuncModState(data: event.data);
     } else if (event is FuncModSubmitted) {
       print('FuncModSubmitted $event');
-      // query api
-
-      yield FuncModResultState();
+      if (event.req is UserDeviceInfoRequest) {
+        final req = (event.req as UserDeviceInfoRequest);
+        try {
+          final res = await api.queryUserDeviceInfo(token, req);
+          if (res.length == 0) {
+            viewData[event.index] = (viewData[event.index] as FuncItemData)
+                .copyWith(
+                    data: ReqResData(
+                        event.req, RespMessage(code: 2, message: "not found")));
+          } else {
+            viewData[event.index] = (viewData[event.index] as FuncItemData)
+                .copyWith(data: ReqResData(event.req, res));
+          }
+        } catch (e) {
+          viewData[event.index] = (viewData[event.index] as FuncItemData)
+              .copyWith(
+                  data: ReqResData(
+                      event.req, RespMessage(code: 2, message: "not found")));
+        }
+        print('viewData $viewData');
+        yield FuncModResultState();
+      } else {
+        throw UnimplementedError();
+      }
     } else {
+      //
       throw UnimplementedError();
     }
   }
