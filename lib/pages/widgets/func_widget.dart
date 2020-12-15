@@ -1,5 +1,6 @@
 import 'package:etstool/bloc/home/home_bloc.dart';
 import 'package:etstool/model/common/api_dt.dart';
+import 'package:etstool/model/common/message.dart';
 import 'package:flutter/material.dart';
 import '../../model/home/func.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,7 +16,9 @@ abstract class FuncWidget extends StatelessWidget {
     @required this.bloc,
     // this.onTap,
     // this.onSubmmit,
-  }) : super(key: key);
+  }) : super(key: key) {
+    _textController.text = getReqValue(itemData);
+  }
   final int index;
   final FuncItemData itemData;
   final bool isShort;
@@ -27,7 +30,10 @@ abstract class FuncWidget extends StatelessWidget {
   /// has to be provided by concrete class
   dynamic onTap(FuncItemData value);
 
-  dynamic onSubmit(FuncItemData value, String formValue);
+  dynamic onSubmit(FuncItemData value, dynamic formValue);
+
+  dynamic getReqValue(FuncItemData data);
+  dynamic getResValue(FuncItemData data);
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +68,7 @@ abstract class FuncWidget extends StatelessWidget {
             ),
             Divider(),
             Text(
-              itemData.title,
+              getResValue(itemData)?.toString() ?? itemData.title,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16.0,
@@ -94,13 +100,38 @@ class UserInfoFuncWidget extends FuncWidget {
         );
 
   @override
-  onSubmit(FuncItemData item, String formValue) {
+  onSubmit(FuncItemData item, dynamic formValue) {
     bloc.add(FuncModSubmitted(
       index: index,
-      req: UserDeviceInfoRequest(env: 'prod', field: formValue),
+      req: UserDeviceInfoRequest(env: 'prod', field: formValue.toString()),
     ));
   }
 
   @override
   onTap(FuncItemData value) {}
+
+  @override
+  getReqValue(FuncItemData data) {
+    if (data.data is ReqResData &&
+        (data.data as ReqResData).req is UserDeviceInfoRequest) {
+      final req = (data.data as ReqResData).req as UserDeviceInfoRequest;
+      return req.field;
+    }
+    return null;
+  }
+
+  @override
+  getResValue(FuncItemData data) {
+    if (data.data is ReqResData) {
+      if ((data.data as ReqResData).req is UserDeviceInfoRequest) {
+        final d = (data.data as ReqResData);
+        if (d.res is RespMessage) {
+          return (d.res as RespMessage).message;
+        } else {
+          return (d.res as List<UserDeviceInfo>).toString();
+        }
+      }
+    }
+    return null;
+  }
 }

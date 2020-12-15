@@ -22,21 +22,6 @@ abstract class HomeEvent extends Equatable {
   bool get stringify => true;
 }
 
-class DefaultHomeEvent extends HomeEvent {
-  const DefaultHomeEvent();
-
-  @override
-  bool get stringify => true;
-}
-
-class TabTappedEvent extends HomeEvent {
-  const TabTappedEvent({@required this.index});
-  final int index;
-
-  @override
-  List<Object> get props => [index];
-}
-
 abstract class HomeState extends Equatable {
   const HomeState();
 
@@ -47,8 +32,23 @@ abstract class HomeState extends Equatable {
   bool get stringify => true;
 }
 
+class DefaultHomeEvent extends HomeEvent {
+  const DefaultHomeEvent();
+
+  @override
+  bool get stringify => true;
+}
+
 class DefaultHomeState extends HomeState {
   const DefaultHomeState();
+}
+
+class TabTappedEvent extends HomeEvent {
+  const TabTappedEvent({@required this.index});
+  final int index;
+
+  @override
+  List<Object> get props => [index];
 }
 
 class TabChangedState extends HomeState {
@@ -154,6 +154,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
         print('viewData $viewData');
         yield FuncModResultState();
+        //yield TabChangedState(index: 1);
       } else {
         throw UnimplementedError();
       }

@@ -39,7 +39,11 @@ class HomePage extends StatelessWidget {
               child: Text('${state.index}'),
             );
           }
-          return Center();
+
+          print('unhandled state: $state');
+          return Center(
+            child: homeBody,
+          );
         },
       ),
       bottomNavigationBar: BlocBuilder<HomeBloc, HomeState>(

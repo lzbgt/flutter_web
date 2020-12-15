@@ -19,14 +19,13 @@ class _HomeBodyWidgetState extends State<HomeBodyWidget> {
   Widget build(BuildContext context) {
     // final box = Injector.appInstance.get<Box>();
     return BlocBuilder<HomeBloc, HomeState>(
-      buildWhen: (previous, current) => true,
-      //previous != current,
+      buildWhen: (previous, current) => previous != current,
       // current is NewFuncModState || current is FuncModResultState,
       builder: (context, state) {
         final funcList = context.select((HomeBloc value) => value.funcList);
         final viewData = context.select((HomeBloc value) => value.viewData);
         print("funcList $funcList");
-        print("viewData2 $viewData");
+        print("viewData $viewData");
         if (state is NewFuncModState) {
         } else if (state is DefaultHomeState) {
         } else if (state is FuncModResultState) {
