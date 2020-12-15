@@ -1,15 +1,14 @@
 import 'package:etstool/pages/widgets/func_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive/hive.dart';
+import 'package:injector/injector.dart';
 import '../../bloc/home/home_bloc.dart';
 import 'func_picker.dart';
 import '../../model/home/func.dart';
 
 class HomeBodyWidget extends StatefulWidget {
   HomeBodyWidget();
-  final List viewData = [];
-  final List<FuncItemData> funcList = [];
-
   @override
   _HomeBodyWidgetState createState() => _HomeBodyWidgetState();
 }
@@ -17,37 +16,32 @@ class HomeBodyWidget extends StatefulWidget {
 class _HomeBodyWidgetState extends State<HomeBodyWidget> {
   @override
   Widget build(BuildContext context) {
-    print("build ${widget.viewData}");
+    // final box = Injector.appInstance.get<Box>();
     return BlocBuilder<HomeBloc, HomeState>(
       buildWhen: (previous, current) => current is NewFuncModState,
       builder: (context, state) {
-        //   listener: (context, state) {
-        //     if (state is NewFuncModState) {
-        //       print('NewFuncModState $state');
-        //       widget.viewData.add(state.data);
-        //       print(widget.viewData);
-        //     }
-        //   },
+        final funcList = context.select((HomeBloc value) => value.funcList);
+        final viewData = context.select((HomeBloc value) => value.viewData);
+        print("funcList $funcList");
+        print("viewData $viewData");
         if (state is NewFuncModState) {
-          widget.viewData.add(state.data);
+          // bloc.viewData.add(state.data);
         } else if (state is DefaultHomeState) {
-          widget.funcList.clear();
-          widget.funcList.addAll(state.funcList);
+          // widget.funcList.clear();
+          // widget.funcList.addAll(state.funcList);
         }
 
-        print("funcList ${widget.funcList}");
-        print("build2 ${widget.viewData}");
         return Column(
           children: [
             Expanded(
               child: SizedBox(
                 height: MediaQuery.of(context).size.height * 2 / 3,
                 child: ListView.builder(
-                  itemCount: widget.viewData.length,
+                  itemCount: viewData.length,
                   itemBuilder: (context, index) {
                     return FuncWidget(
                       index: index,
-                      itemData: widget.viewData[index],
+                      itemData: viewData[index],
                       isShort: false,
                       onTap: (_) => {},
                     );
@@ -78,7 +72,7 @@ class _HomeBodyWidgetState extends State<HomeBodyWidget> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: FuncPickWdiget(funcList: widget.funcList),
+                              child: FuncPickWdiget(funcList: funcList),
                             );
                           },
                         );

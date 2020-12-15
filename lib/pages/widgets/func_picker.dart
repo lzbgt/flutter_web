@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'func_card.dart';
 
 class FuncPickWdiget extends StatefulWidget {
-  FuncPickWdiget({
+  const FuncPickWdiget({
     Key key,
     @required this.funcList,
   }) : super(key: key);

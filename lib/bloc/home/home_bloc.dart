@@ -45,8 +45,7 @@ abstract class HomeState extends Equatable {
 }
 
 class DefaultHomeState extends HomeState {
-  final List<FuncItemData> funcList;
-  const DefaultHomeState({@required this.funcList});
+  const DefaultHomeState();
 }
 
 class TabChangedState extends HomeState {
@@ -77,21 +76,32 @@ class NewFuncModState extends HomeState {
   List<Object> get props => [data, ctime];
 }
 
+class FuncModSubmitted extends HomeEvent {}
+
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   int tabIdx;
   final API api;
+  // history
+  final List viewData = [];
+  final List<FuncItemData> funcList = [];
   HomeBloc({this.tabIdx = 0, this.api: const ProdAPI()})
-      : super(DefaultHomeState(funcList: api.getFuncMods()));
+      : super(DefaultHomeState()) {
+    funcList.addAll(api.getFuncMods());
+  }
+
   @override
   Stream<HomeState> mapEventToState(HomeEvent event) async* {
     if (event is DefaultHomeEvent) {
-      yield DefaultHomeState(funcList: api.getFuncMods());
+      funcList.clear();
+      funcList.addAll(api.getFuncMods());
+      yield DefaultHomeState();
     } else if (event is TabTappedEvent) {
       print('TabTappedEvent $event');
       this.tabIdx = event.index;
       yield TabChangedState(index: this.tabIdx);
     } else if (event is NewFuncModEvent) {
       print('NewFuncModEvent $event');
+      viewData.add(event.data);
       yield NewFuncModState(data: event.data);
     } else {
       throw UnimplementedError();
