@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
-import '../../model/login/login.dart';
+import '../../pages/widgets/login.dart';
 import 'package:meta/meta.dart';
 import 'package:injector/injector.dart';
 import 'package:hive/hive.dart';
@@ -124,6 +124,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           );
         } else {
           final box = Injector.appInstance.get<Box>();
+          box.put(cst.loginUsername, phone);
+          box.put(cst.loginPassword, password);
           box.put(cst.authTokenKey, tok.data);
           yield state.copyWith(
             status: FormzStatus.submissionSuccess,
