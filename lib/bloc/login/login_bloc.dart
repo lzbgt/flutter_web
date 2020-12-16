@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
-import '../../pages/widgets/login.dart';
+import '../../model/login/login.dart';
 import 'package:meta/meta.dart';
 import 'package:injector/injector.dart';
 import 'package:hive/hive.dart';
@@ -33,6 +33,8 @@ class PasswordChanged extends LoginEvent {
   List<Object> get props => [password];
 }
 
+class DefaultLoginEvent extends LoginEvent {}
+
 class PhoneUnfocused extends LoginEvent {}
 
 class PasswordUnfocused extends LoginEvent {}
@@ -45,12 +47,11 @@ class LoginState extends Equatable {
   final FormzStatus status;
   final dynamic data;
 
-  const LoginState({
-    this.phone = const Phone.pure(),
-    this.password = const Password.pure(),
-    this.status = FormzStatus.pure,
-    this.data,
-  });
+  const LoginState(
+      {this.phone: const Phone.pure(),
+      this.password: const Password.pure(),
+      this.status: FormzStatus.pure,
+      this.data});
 
   LoginState copyWith(
       {Phone phone, Password password, FormzStatus status, String data}) {
@@ -70,14 +71,37 @@ class LoginState extends Equatable {
 }
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  LoginBloc({this.api: const ProdAPI()}) : super(const LoginState());
+  LoginBloc({this.api: const ProdAPI(), this.defaultState: const LoginState()})
+      : super(defaultState) {
+    tokenStored = box.get(cst.authTokenKey);
+    passwordStored = box.get(cst.loginPassword);
+    userNameStored = box.get(cst.loginUsername);
+  }
+
+  LoginBloc.withState({this.api: const ProdAPI(), @required this.defaultState})
+      : super(defaultState);
+
+  LoginState defaultState;
+
   final API api;
+  final cst = Consts();
   final box = Injector.appInstance.get<Box>();
+  String tokenStored;
+  String passwordStored;
+  String userNameStored;
 
   @override
   Stream<LoginState> mapEventToState(LoginEvent event) async* {
-    final cst = Consts();
-    if (event is PhoneChanged) {
+    if (event is DefaultLoginEvent) {
+      yield LoginState(
+          phone: userNameStored != null
+              ? Phone.dirty(userNameStored)
+              : Phone.pure(),
+          password: passwordStored != null
+              ? Password.dirty(passwordStored)
+              : Password.pure(),
+          status: FormzStatus.pure);
+    } else if (event is PhoneChanged) {
       final phone = Phone.dirty(event.phone);
       yield state.copyWith(
         phone: phone.valid ? phone : Phone.pure(),
@@ -124,15 +148,21 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           );
         } else {
           final box = Injector.appInstance.get<Box>();
-          box.put(cst.loginUsername, phone);
-          box.put(cst.loginPassword, password);
+          tokenStored = tok.data;
+          passwordStored = password.value;
+          userNameStored = phone.value;
+          box.put(cst.loginUsername, phone.value);
+          box.put(cst.loginPassword, password.value);
           box.put(cst.authTokenKey, tok.data);
-          yield state.copyWith(
+
+          final sta = LoginState(
             status: FormzStatus.submissionSuccess,
             data: tok.message,
             phone: phone,
             password: password,
           );
+          print('yield login success: $sta');
+          yield sta;
         }
       }
     } else {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
+import 'package:hive/hive.dart';
 import 'package:injector/injector.dart';
 import '../const/consts.dart';
 
@@ -103,6 +104,7 @@ class _LoginState extends State<LoginPage> {
         context.read<LoginBloc>().add(PasswordUnfocused());
       }
     });
+    //context.read<LoginBloc>().add(DefaultLoginEvent());
   }
 
   @override
@@ -114,17 +116,17 @@ class _LoginState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final box = Injector.appInstance.get<Box>();
     return Scaffold(
         appBar: AppBar(title: Text(Consts().appName)),
         body: BlocListener<LoginBloc, LoginState>(
           listener: (context, state) {
+            print('BlocListener $state');
             if (state.status.isSubmissionSuccess) {
               ScaffoldMessenger.of(context)
                 ..hideCurrentSnackBar()
                 ..showSnackBar(
                   const SnackBar(
-                      duration: Duration(milliseconds: 700),
+                      duration: Duration(milliseconds: 400),
                       content: Text('login success')),
                 );
               Navigator.of(context).popAndPushNamed('/home');
