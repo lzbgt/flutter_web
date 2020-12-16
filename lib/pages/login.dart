@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
+import 'package:injector/injector.dart';
 import '../const/consts.dart';
 
 class PhoneWidget extends StatelessWidget {
@@ -113,6 +114,7 @@ class _LoginState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final box = Injector.appInstance.get<Box>();
     return Scaffold(
         appBar: AppBar(title: Text(Consts().appName)),
         body: BlocListener<LoginBloc, LoginState>(
