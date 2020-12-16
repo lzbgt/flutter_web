@@ -176,7 +176,9 @@ class UserInfoFuncWidget extends FuncWidget {
       child: SelectableText(
         itemData.data == null
             ? itemData.title
-            : JsonEncoder.withIndent('    ').convert(getResValue(itemData)),
+            : getResValue(itemData) is String
+                ? getResValue(itemData)
+                : JsonEncoder.withIndent('    ').convert(getResValue(itemData)),
         textAlign: TextAlign.left,
         showCursor: true,
         toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
@@ -249,13 +251,17 @@ class UnbindFuncWidget extends FuncWidget {
       color: Colors.lightBlue.shade50,
       child: SelectableText(
         itemData.data == null
-            ? itemData.title
-            : JsonEncoder.withIndent('    ').convert(getResValue(itemData)),
+            ? "functionality has not been implemented yet"
+            : getResValue(itemData) is String
+                ? getResValue(itemData)
+                : JsonEncoder.withIndent('    ').convert(getResValue(itemData)),
         textAlign: TextAlign.left,
         showCursor: true,
         toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
         style: TextStyle(
-          fontSize: 16.0,
+          color: Colors.red,
+          fontSize: 20.0,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );

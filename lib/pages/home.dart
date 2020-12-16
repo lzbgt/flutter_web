@@ -46,6 +46,11 @@ class HomePage extends StatelessWidget {
           );
         },
       ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {},
+      //   child: Icon(Icons.send),
+      // ),
       bottomNavigationBar: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
           return BottomNavigationBar(
