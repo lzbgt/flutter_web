@@ -77,6 +77,13 @@ abstract class FuncWidget extends StatelessWidget {
               ),
               title: Text(itemData.title),
               subtitle: TextFormField(
+                decoration: InputDecoration(
+                  icon: const Icon(Icons.account_box),
+                  labelText: 'Ebox ID',
+                  helperText: 'Device Serial Number',
+                ),
+                keyboardType: TextInputType.name,
+                textInputAction: TextInputAction.next,
                 onFieldSubmitted: (value) {
                   //FocusScope.of(context).requestFocus(_focusNode);
                   onSubmit(itemData, _textController.text);
@@ -164,13 +171,92 @@ class UserInfoFuncWidget extends FuncWidget {
 
   @override
   Widget buildResWgt(FuncItemData data) {
-    return Text(
-      itemData.data == null
-          ? itemData.title
-          : JsonEncoder.withIndent('    ').convert(getResValue(itemData)),
-      textAlign: TextAlign.left,
-      style: TextStyle(
-        fontSize: 16.0,
+    return Container(
+      color: Colors.lightBlue.shade50,
+      child: SelectableText(
+        itemData.data == null
+            ? itemData.title
+            : JsonEncoder.withIndent('    ').convert(getResValue(itemData)),
+        textAlign: TextAlign.left,
+        showCursor: true,
+        toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
+        style: TextStyle(
+          fontSize: 16.0,
+        ),
+      ),
+    );
+  }
+}
+
+class UnbindFuncWidget extends FuncWidget {
+  UnbindFuncWidget({
+    int index,
+    Bloc bloc,
+    FuncItemData itemData,
+    bool isShort,
+  }) : super(
+          index: index,
+          bloc: bloc,
+          itemData: itemData,
+          isShort: isShort,
+        );
+
+  @override
+  onSubmit(FuncItemData item, dynamic formValue) {
+    bloc.add(FuncModSubmitted(
+      index: index,
+      req: UnbindDeviceRequest(env: 'prod', field: formValue.toString()),
+    ));
+  }
+
+  @override
+  onTap(FuncItemData value) {}
+
+  @override
+  getReqValue(FuncItemData data) {
+    if (data.data is ReqResData &&
+        (data.data as ReqResData).req is UserDeviceInfoRequest) {
+      final req = (data.data as ReqResData).req as UserDeviceInfoRequest;
+      return req.field;
+    }
+    return null;
+  }
+
+  @override
+  getResValue(FuncItemData data) {
+    if (data.data is ReqResData) {
+      if ((data.data as ReqResData).req is UnbindDeviceRequest) {
+        final d = (data.data as ReqResData);
+        if (d.res is RespMessage) {
+          return (d.res as RespMessage).message;
+        } else {
+          print('res: $d.res');
+          return (d.res as List<UserDeviceInfo>);
+        }
+      }
+    }
+    return null;
+  }
+
+  @override
+  Widget buildReqWgt(FuncItemData data) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Widget buildResWgt(FuncItemData data) {
+    return Container(
+      color: Colors.lightBlue.shade50,
+      child: SelectableText(
+        itemData.data == null
+            ? itemData.title
+            : JsonEncoder.withIndent('    ').convert(getResValue(itemData)),
+        textAlign: TextAlign.left,
+        showCursor: true,
+        toolbarOptions: ToolbarOptions(copy: true, selectAll: true),
+        style: TextStyle(
+          fontSize: 16.0,
+        ),
       ),
     );
   }

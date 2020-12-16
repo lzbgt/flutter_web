@@ -154,13 +154,23 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
         print('viewData $viewData');
         yield FuncModResultState();
-        //yield TabChangedState(index: 1);
-      } else {
-        throw UnimplementedError();
+      } else if (event.req is UnbindDeviceRequest) {
+        // TODO
+        final req = (event.req as UnbindDeviceRequest);
+        viewData[
+            event
+                .index] = (viewData[event.index] as FuncItemData).copyWith(
+            data: ReqResData(
+                req,
+                RespMessage(
+                    code: 2,
+                    message:
+                        "todo: this function has not been implemented yet")));
+
+        yield FuncModResultState();
       }
-    } else {
-      //
-      throw UnimplementedError();
     }
+    //
+    throw UnimplementedError();
   }
 }

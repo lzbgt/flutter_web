@@ -40,12 +40,25 @@ class _HomeBodyWidgetState extends State<HomeBodyWidget> {
                 child: ListView.builder(
                   itemCount: viewData.length,
                   itemBuilder: (context, index) {
-                    return UserInfoFuncWidget(
-                      index: index,
-                      bloc: context.read<HomeBloc>(),
-                      itemData: viewData[index],
-                      isShort: false,
-                    );
+                    final _data = viewData[index]; //UnbindFuncWidget
+                    if (_data is FuncItemData) {
+                      if (_data.index == 0) {
+                        return UserInfoFuncWidget(
+                          index: index,
+                          bloc: context.read<HomeBloc>(),
+                          itemData: _data,
+                          isShort: false,
+                        );
+                      } else if (_data.index == 1) {
+                        return UnbindFuncWidget(
+                          index: index,
+                          bloc: context.read<HomeBloc>(),
+                          itemData: _data,
+                          isShort: false,
+                        );
+                      } else {}
+                    }
+                    throw UnimplementedError("not implemented yet");
                   },
                 ),
               ),

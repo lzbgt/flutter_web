@@ -107,12 +107,11 @@ class UserDeviceInfoRequest extends Equatable {
 
 class UnbindDeviceRequest extends Equatable {
   final String env;
-  final String boxDeviceId;
-
-  const UnbindDeviceRequest({this.env, this.boxDeviceId});
+  final String field;
+  const UnbindDeviceRequest({this.env, this.field});
 
   @override
-  List<Object> get props => [env, boxDeviceId];
+  List<Object> get props => [env, field];
 
   @override
   bool get stringify => true;
