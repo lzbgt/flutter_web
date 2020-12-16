@@ -93,14 +93,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   @override
   Stream<LoginState> mapEventToState(LoginEvent event) async* {
     if (event is DefaultLoginEvent) {
-      yield LoginState(
-          phone: userNameStored != null
-              ? Phone.dirty(userNameStored)
-              : Phone.pure(),
-          password: passwordStored != null
-              ? Password.dirty(passwordStored)
-              : Password.pure(),
-          status: FormzStatus.pure);
+      // yield LoginState(
+      //     phone: userNameStored != null
+      //         ? Phone.dirty(userNameStored)
+      //         : Phone.pure(),
+      //     password: passwordStored != null
+      //         ? Password.dirty(passwordStored)
+      //         : Password.pure(),
+      //     status: FormzStatus.pure);
     } else if (event is PhoneChanged) {
       final phone = Phone.dirty(event.phone);
       yield state.copyWith(

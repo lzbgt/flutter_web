@@ -18,15 +18,18 @@ abstract class FuncWidget extends StatelessWidget {
     @required this.bloc,
     // this.onTap,
     // this.onSubmmit,
-  }) : super(key: key) {
+  })  : _focusNode = FocusNode(),
+        super(key: key) {
     _textController.text = getReqValue(itemData);
   }
+
   final int index;
   final FuncItemData itemData;
   final ctime = DateTime.now();
   final bool isShort;
   final _textController = TextEditingController();
   final Bloc bloc;
+  final FocusNode _focusNode;
   // final FuncItemDataCallBack onTap;
   // final FuncItemDataCallBack onSubmmit;
 
@@ -74,9 +77,14 @@ abstract class FuncWidget extends StatelessWidget {
               ),
               title: Text(itemData.title),
               subtitle: TextFormField(
+                onFieldSubmitted: (value) {
+                  //FocusScope.of(context).requestFocus(_focusNode);
+                  onSubmit(itemData, _textController.text);
+                },
                 controller: _textController,
               ),
               trailing: RaisedButton(
+                focusNode: _focusNode,
                 onPressed: () {
                   print('submit pressed');
                   onSubmit(itemData, _textController.text);
