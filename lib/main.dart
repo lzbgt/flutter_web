@@ -36,15 +36,18 @@ class MyApp extends StatelessWidget {
         initialRoute: '/login',
         routes: {
           '/login': (context) => BlocProvider<LoginBloc>(
-              create: (BuildContext context) {
-                final sta = LoginState(
-                  phone: Phone.dirty(box.get(cst.loginUsername)),
-                  password: Password.dirty(box.get(cst.loginPassword)),
-                  status: FormzStatus.valid,
-                );
-                return LoginBloc.withState(defaultState: sta);
-              },
-              child: LoginPage()),
+                create: (BuildContext context) {
+                  final u = box.get(cst.loginUsername);
+                  final p = box.get(cst.loginPassword);
+                  final sta = LoginState(
+                    phone: u != null ? Phone.dirty(u) : Phone.pure(),
+                    password: p != null ? Password.dirty(p) : Password.pure(),
+                    status: FormzStatus.valid,
+                  );
+                  return LoginBloc.withState(defaultState: sta);
+                },
+                child: LoginPage(),
+              ),
           '/home': (context) => BlocProvider<HomeBloc>(
                 create: (_) => HomeBloc(),
                 child: HomePage(
