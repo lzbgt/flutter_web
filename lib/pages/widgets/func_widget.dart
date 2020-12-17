@@ -9,6 +9,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef dynamic FuncItemDataCallBack(FuncItemData value);
 final List<String> tags = const ['test', 'dev', 'prod'];
+final Map<String, int> tagsToIdx = const {
+  'test': 0,
+  'dev': 1,
+  'prod': 2,
+};
 
 abstract class FuncWidget extends StatelessWidget {
   FuncWidget({
@@ -53,7 +58,16 @@ abstract class FuncWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    EnvironSlider environSlider = EnvironSlider();
+    print('build func_widget: $itemData');
+    final reqres = (itemData.data as ReqResData);
+    final req = (reqres?.req as UserReq);
+    if (req != null) {
+      print('tagsToIdx[req.env] ${tagsToIdx[req.env]}');
+    }
+
+    EnvironSlider environSlider = EnvironSlider(
+      defaultSel: req != null ? tagsToIdx[req.env] : 0,
+    );
     return Card(
       elevation: 6.0,
       color: Colors.lightGreen.shade50,
@@ -137,8 +151,12 @@ abstract class FuncWidget extends StatelessWidget {
 class EnvironSlider extends StatefulWidget {
   EnvironSlider({
     Key key,
-  }) : super(key: key);
+    this.defaultSel: 0,
+  }) : super(key: key) {
+    stateVal[0] = this.defaultSel;
+  }
 
+  final int defaultSel;
   final List<int> stateVal = [0];
 
   @override
@@ -146,7 +164,14 @@ class EnvironSlider extends StatefulWidget {
 }
 
 class _EnvironSliderState extends State<EnvironSlider> {
-  final List<bool> isSelected = [true, false, false];
+  @override
+  void initState() {
+    print('build stateVal ${widget.defaultSel}');
+    isSelected[widget.defaultSel] = true;
+    super.initState();
+  }
+
+  final List<bool> isSelected = [false, false, false];
   @override
   Widget build(BuildContext context) {
     return ToggleButtons(
