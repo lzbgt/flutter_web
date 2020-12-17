@@ -323,15 +323,16 @@ class UnbindFuncWidget extends FuncWidget {
     if (data.data is ReqResData) {
       if ((data.data as ReqResData).req is UnbindDeviceRequest) {
         final d = (data.data as ReqResData);
+        print('res: $d.res');
         if (d.res is RespMessage) {
+          if (d.res.code == 0) {
+            return 'OK';
+          }
           return (d.res as RespMessage).message;
-        } else {
-          print('res: $d.res');
-          return (d.res as List<UserDeviceInfo>);
         }
       }
     }
-    return null;
+    return 'unkown issue';
   }
 
   @override
@@ -339,11 +340,7 @@ class UnbindFuncWidget extends FuncWidget {
     return Container(
       color: Colors.lightBlue.shade50,
       child: SelectableText(
-        itemData.data == null
-            ? "functionality has not been implemented yet"
-            : getResValue(itemData) is String
-                ? getResValue(itemData)
-                : JsonEncoder.withIndent('    ').convert(getResValue(itemData)),
+        itemData.data == null ? itemData.title : getResValue(itemData),
         textAlign: TextAlign.left,
         showCursor: true,
         toolbarOptions: ToolbarOptions(copy: true, selectAll: true),

@@ -8,4 +8,5 @@ abstract class API {
   List<FuncItemData> getFuncMods();
   Future<List<UserDeviceInfo>> queryUserDeviceInfo(
       String token, UserDeviceInfoRequest req);
+  Future<RespMessage> unbindDevice(String token, UnbindDeviceRequest req);
 }

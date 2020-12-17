@@ -159,18 +159,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         yield FuncModResultState();
         return;
       } else if (event.req is UnbindDeviceRequest) {
-        // TODO
         final req = (event.req as UnbindDeviceRequest);
-        viewData[
-            event
-                .index] = (viewData[event.index] as FuncItemData).copyWith(
-            data: ReqResData(
-                req,
-                RespMessage(
-                    code: 2,
-                    message:
-                        "todo: this function has not been implemented yet")));
-
+        final res = await api.unbindDevice(token, req);
+        viewData[event.index] = (viewData[event.index] as FuncItemData)
+            .copyWith(data: ReqResData(req, res));
         yield FuncModResultState();
         return;
       }

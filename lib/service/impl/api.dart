@@ -63,4 +63,22 @@ class ProdAPI implements API {
     }
     return res;
   }
+
+  @override
+  Future<RespMessage> unbindDevice(
+      String token, UnbindDeviceRequest req) async {
+    RespMessage res = RespMessage(code: 0);
+    try {
+      final resp = await Dio(BaseOptions(
+              connectTimeout: 3000,
+              receiveTimeout: 3000,
+              headers: {'Authorization': 'Bearer $token'}))
+          .get(baseUrl + '/${req.env}/unbind/${req.field}');
+      print(resp);
+    } catch (e) {
+      print('exception 1: $e');
+      throw RespMessage(code: 1, message: e);
+    }
+    return res;
+  }
 }
