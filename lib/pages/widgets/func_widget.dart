@@ -20,7 +20,8 @@ abstract class FuncWidget extends StatelessWidget {
     // this.onSubmmit,
   })  : _focusNode = FocusNode(),
         super(key: key) {
-    _textController.text = getReqValue(itemData);
+    final req = getReqValue(itemData) as UserReq;
+    _textController.text = req?.field;
   }
 
   final int index;
@@ -30,8 +31,6 @@ abstract class FuncWidget extends StatelessWidget {
   final _textController = TextEditingController();
   final Bloc bloc;
   final FocusNode _focusNode;
-  // final FuncItemDataCallBack onTap;
-  // final FuncItemDataCallBack onSubmmit;
 
   /// has to be provided by concrete class
   dynamic onTap(FuncItemData value);
@@ -76,19 +75,33 @@ abstract class FuncWidget extends StatelessWidget {
                 color: Colors.lightGreen,
               ),
               title: Text(itemData.title),
-              subtitle: TextFormField(
-                decoration: InputDecoration(
-                  icon: const Icon(Icons.account_box),
-                  labelText: 'Ebox ID',
-                  helperText: 'Device Serial Number',
-                ),
-                keyboardType: TextInputType.name,
-                textInputAction: TextInputAction.next,
-                onFieldSubmitted: (value) {
-                  //FocusScope.of(context).requestFocus(_focusNode);
-                  onSubmit(itemData, _textController.text);
-                },
-                controller: _textController,
+              subtitle: Row(
+                children: [
+                  // Slider(
+                  //   value: 0,
+                  //   min: 0,
+                  //   max: 3,
+                  //   divisions: 1,
+                  //   label: '0',
+                  //   onChanged: (double value) {},
+                  // ),
+                  Expanded(
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        icon: const Icon(Icons.account_box),
+                        labelText: 'Ebox ID',
+                        helperText: 'Device Serial Number',
+                      ),
+                      keyboardType: TextInputType.name,
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (value) {
+                        //FocusScope.of(context).requestFocus(_focusNode);
+                        onSubmit(itemData, _textController.text);
+                      },
+                      controller: _textController,
+                    ),
+                  ),
+                ],
               ),
               trailing: RaisedButton(
                 focusNode: _focusNode,
@@ -128,6 +141,7 @@ class UserInfoFuncWidget extends FuncWidget {
 
   @override
   onSubmit(FuncItemData item, dynamic formValue) {
+    print('onSubmit called $formValue');
     bloc.add(FuncModSubmitted(
       index: index,
       req: UserDeviceInfoRequest(env: 'prod', field: formValue.toString()),
@@ -142,7 +156,7 @@ class UserInfoFuncWidget extends FuncWidget {
     if (data.data is ReqResData &&
         (data.data as ReqResData).req is UserDeviceInfoRequest) {
       final req = (data.data as ReqResData).req as UserDeviceInfoRequest;
-      return req.field;
+      return req;
     }
     return null;
   }
@@ -205,6 +219,7 @@ class UnbindFuncWidget extends FuncWidget {
 
   @override
   onSubmit(FuncItemData item, dynamic formValue) {
+    print('onSubmit called $formValue');
     bloc.add(FuncModSubmitted(
       index: index,
       req: UnbindDeviceRequest(env: 'prod', field: formValue.toString()),
@@ -217,9 +232,8 @@ class UnbindFuncWidget extends FuncWidget {
   @override
   getReqValue(FuncItemData data) {
     if (data.data is ReqResData &&
-        (data.data as ReqResData).req is UserDeviceInfoRequest) {
-      final req = (data.data as ReqResData).req as UserDeviceInfoRequest;
-      return req.field;
+        (data.data as ReqResData).req is UnbindDeviceRequest) {
+      return (data.data as ReqResData).req as UnbindDeviceRequest;
     }
     return null;
   }

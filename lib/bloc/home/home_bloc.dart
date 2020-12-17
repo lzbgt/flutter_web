@@ -123,14 +123,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       funcList.clear();
       funcList.addAll(api.getFuncMods());
       yield DefaultHomeState();
+      return;
     } else if (event is TabTappedEvent) {
       print('TabTappedEvent $event');
       this.tabIdx = event.index;
       yield TabChangedState(index: this.tabIdx);
+      return;
     } else if (event is NewFuncModEvent) {
       print('NewFuncModEvent $event');
       viewData.add(event.data);
       yield NewFuncModState(data: event.data);
+      return;
     } else if (event is FuncModSubmitted) {
       print('FuncModSubmitted $event');
       if (event.req is UserDeviceInfoRequest) {
@@ -154,6 +157,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
         print('viewData $viewData');
         yield FuncModResultState();
+        return;
       } else if (event.req is UnbindDeviceRequest) {
         // TODO
         final req = (event.req as UnbindDeviceRequest);
@@ -168,6 +172,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                         "todo: this function has not been implemented yet")));
 
         yield FuncModResultState();
+        return;
       }
     }
     //

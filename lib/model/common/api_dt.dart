@@ -93,10 +93,10 @@ class UserDeviceInfo extends Equatable {
   }
 }
 
-class UserDeviceInfoRequest extends Equatable {
+abstract class UserReq extends Equatable {
   final String env;
   final String field;
-  const UserDeviceInfoRequest({this.env, this.field});
+  const UserReq({this.env, this.field});
 
   @override
   List<Object> get props => [env, field];
@@ -105,16 +105,14 @@ class UserDeviceInfoRequest extends Equatable {
   bool get stringify => true;
 }
 
-class UnbindDeviceRequest extends Equatable {
-  final String env;
-  final String field;
-  const UnbindDeviceRequest({this.env, this.field});
+class UserDeviceInfoRequest extends UserReq {
+  const UserDeviceInfoRequest({String env, String field})
+      : super(env: env, field: field);
+}
 
-  @override
-  List<Object> get props => [env, field];
-
-  @override
-  bool get stringify => true;
+class UnbindDeviceRequest extends UserReq {
+  const UnbindDeviceRequest({String env, String field})
+      : super(env: env, field: field);
 }
 
 class ReqResData extends Equatable {
