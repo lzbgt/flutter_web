@@ -48,6 +48,9 @@ class _HomeBodyWidgetState extends State<HomeBodyWidget> {
                           bloc: context.read<HomeBloc>(),
                           itemData: _data,
                           isShort: false,
+                          label: 'Ientity',
+                          helper:
+                              'MobileNumber/BoxDeviceID/BoxNodeID/NetworkID',
                         );
                       } else if (_data.index == 1) {
                         return UnbindFuncWidget(
@@ -55,6 +58,8 @@ class _HomeBodyWidgetState extends State<HomeBodyWidget> {
                           bloc: context.read<HomeBloc>(),
                           itemData: _data,
                           isShort: false,
+                          label: 'BoxDeviceID',
+                          helper: 'EBox Device Serial Number',
                         );
                       } else {}
                     }
