@@ -93,7 +93,7 @@ class UserDeviceInfo extends Equatable {
   }
 }
 
-abstract class UserReq extends Equatable {
+class UserReq extends Equatable {
   final String env;
   final String field;
   const UserReq({this.env, this.field});

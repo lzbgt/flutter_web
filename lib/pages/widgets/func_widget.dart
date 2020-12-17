@@ -8,6 +8,7 @@ import '../../model/home/func.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef dynamic FuncItemDataCallBack(FuncItemData value);
+final List<String> tags = const ['test', 'dev', 'prod'];
 
 abstract class FuncWidget extends StatelessWidget {
   FuncWidget({
@@ -35,7 +36,7 @@ abstract class FuncWidget extends StatelessWidget {
   /// has to be provided by concrete class
   dynamic onTap(FuncItemData value);
 
-  dynamic onSubmit(FuncItemData value, dynamic formValue);
+  dynamic onSubmit(FuncItemData value);
 
   dynamic getReqValue(FuncItemData data);
   dynamic getResValue(FuncItemData data);
@@ -89,8 +90,15 @@ abstract class FuncWidget extends StatelessWidget {
                       keyboardType: TextInputType.name,
                       textInputAction: TextInputAction.next,
                       onFieldSubmitted: (value) {
-                        print('on onFieldSubmitted in func_widget');
-                        onSubmit(itemData, _textController.text);
+                        print(
+                            'on onFieldSubmitted in func_widget: ${environSlider.stateVal}');
+                        final data = itemData.copyWith(
+                            data: ReqResData(
+                                UserReq(
+                                    env: tags[environSlider.stateVal[0]],
+                                    field: value),
+                                null));
+                        onSubmit(data);
                       },
                       controller: _textController,
                     ),
@@ -100,8 +108,14 @@ abstract class FuncWidget extends StatelessWidget {
               trailing: RaisedButton(
                 focusNode: _focusNode,
                 onPressed: () {
-                  print('submit pressed');
-                  onSubmit(itemData, _textController.text);
+                  print('submit pressed $itemData');
+                  final data = itemData.copyWith(
+                      data: ReqResData(
+                          UserReq(
+                              env: tags[environSlider.stateVal[0]],
+                              field: _textController.text),
+                          null));
+                  onSubmit(data);
                 },
                 child: Text('Submit'),
               ),
@@ -121,16 +135,17 @@ abstract class FuncWidget extends StatelessWidget {
 }
 
 class EnvironSlider extends StatefulWidget {
-  const EnvironSlider({
+  EnvironSlider({
     Key key,
   }) : super(key: key);
+
+  final List<int> stateVal = [0];
 
   @override
   _EnvironSliderState createState() => _EnvironSliderState();
 }
 
 class _EnvironSliderState extends State<EnvironSlider> {
-  final List<String> tags = const ['test', 'dev', 'prod'];
   final List<bool> isSelected = [true, false, false];
   @override
   Widget build(BuildContext context) {
@@ -144,6 +159,7 @@ class _EnvironSliderState extends State<EnvironSlider> {
         setState(() {
           isSelected.setAll(0, [false, false, false]);
           isSelected[index] = true;
+          widget.stateVal[0] = index;
         });
       },
       isSelected: isSelected,
@@ -165,11 +181,12 @@ class UserInfoFuncWidget extends FuncWidget {
         );
 
   @override
-  onSubmit(FuncItemData item, dynamic formValue) {
-    print('onSubmit called $formValue');
+  onSubmit(FuncItemData item) {
+    final req = ((item.data as ReqResData).req as UserReq);
+    print('onSubmit called $item');
     bloc.add(FuncModSubmitted(
       index: index,
-      req: UserDeviceInfoRequest(env: 'prod', field: formValue.toString()),
+      req: UserDeviceInfoRequest(env: req.env, field: req.field),
     ));
   }
 
@@ -243,11 +260,12 @@ class UnbindFuncWidget extends FuncWidget {
         );
 
   @override
-  onSubmit(FuncItemData item, dynamic formValue) {
-    print('onSubmit called $formValue');
+  onSubmit(FuncItemData item) {
+    final req = ((item.data as ReqResData).req as UserReq);
+    print('onSubmit called $item');
     bloc.add(FuncModSubmitted(
       index: index,
-      req: UnbindDeviceRequest(env: 'prod', field: formValue.toString()),
+      req: UnbindDeviceRequest(env: req.env, field: req.field),
     ));
   }
 
