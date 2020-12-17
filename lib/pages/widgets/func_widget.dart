@@ -52,6 +52,7 @@ abstract class FuncWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    EnvironSlider environSlider = EnvironSlider();
     return Card(
       elevation: 6.0,
       color: Colors.lightGreen.shade50,
@@ -77,14 +78,7 @@ abstract class FuncWidget extends StatelessWidget {
               title: Text(itemData.title),
               subtitle: Row(
                 children: [
-                  // Slider(
-                  //   value: 0,
-                  //   min: 0,
-                  //   max: 3,
-                  //   divisions: 1,
-                  //   label: '0',
-                  //   onChanged: (double value) {},
-                  // ),
+                  environSlider,
                   Expanded(
                     child: TextFormField(
                       decoration: InputDecoration(
@@ -95,7 +89,7 @@ abstract class FuncWidget extends StatelessWidget {
                       keyboardType: TextInputType.name,
                       textInputAction: TextInputAction.next,
                       onFieldSubmitted: (value) {
-                        //FocusScope.of(context).requestFocus(_focusNode);
+                        print('on onFieldSubmitted in func_widget');
                         onSubmit(itemData, _textController.text);
                       },
                       controller: _textController,
@@ -122,6 +116,37 @@ abstract class FuncWidget extends StatelessWidget {
           onTap(itemData);
         },
       ),
+    );
+  }
+}
+
+class EnvironSlider extends StatefulWidget {
+  const EnvironSlider({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  _EnvironSliderState createState() => _EnvironSliderState();
+}
+
+class _EnvironSliderState extends State<EnvironSlider> {
+  final List<String> tags = const ['test', 'dev', 'prod'];
+  final List<bool> isSelected = [true, false, false];
+  @override
+  Widget build(BuildContext context) {
+    return ToggleButtons(
+      children: <Widget>[
+        Text('Test'),
+        Text('Dev'),
+        Text('Prod'),
+      ],
+      onPressed: (int index) {
+        setState(() {
+          isSelected.setAll(0, [false, false, false]);
+          isSelected[index] = true;
+        });
+      },
+      isSelected: isSelected,
     );
   }
 }

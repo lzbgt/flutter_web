@@ -135,7 +135,7 @@ class _LoginState extends State<LoginPage> {
                 ..hideCurrentSnackBar()
                 ..showSnackBar(
                   const SnackBar(
-                      duration: Duration(hours: 100),
+                      duration: Duration(milliseconds: 1000),
                       content: ListTile(
                         leading: CircularProgressIndicator(
                           backgroundColor: Colors.green,
