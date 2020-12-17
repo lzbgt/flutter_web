@@ -22,6 +22,8 @@ abstract class FuncWidget extends StatelessWidget {
     @required this.itemData,
     @required this.isShort,
     @required this.bloc,
+    @required this.label,
+    @required this.helper,
     // this.onTap,
     // this.onSubmmit,
   })  : _focusNode = FocusNode(),
@@ -37,6 +39,8 @@ abstract class FuncWidget extends StatelessWidget {
   final _textController = TextEditingController();
   final Bloc bloc;
   final FocusNode _focusNode;
+  final String label;
+  final String helper;
 
   /// has to be provided by concrete class
   dynamic onTap(FuncItemData value);
@@ -45,7 +49,6 @@ abstract class FuncWidget extends StatelessWidget {
 
   dynamic getReqValue(FuncItemData data);
   dynamic getResValue(FuncItemData data);
-  Widget buildReqWgt(FuncItemData data);
   Widget buildResWgt(FuncItemData data) {
     return Text(
       getResValue(itemData)?.toString() ?? itemData.title,
@@ -95,27 +98,10 @@ abstract class FuncWidget extends StatelessWidget {
                 children: [
                   environSlider,
                   Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        icon: const Icon(Icons.account_box),
-                        labelText: 'Ebox ID',
-                        helperText: 'Device Serial Number',
-                      ),
-                      keyboardType: TextInputType.name,
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (value) {
-                        print(
-                            'on onFieldSubmitted in func_widget: ${environSlider.stateVal}');
-                        final data = itemData.copyWith(
-                            data: ReqResData(
-                                UserReq(
-                                    env: tags[environSlider.stateVal[0]],
-                                    field: value),
-                                null));
-                        onSubmit(data);
-                      },
-                      controller: _textController,
-                    ),
+                    child: buildReqWgt(
+                        environSlider: environSlider,
+                        label: label,
+                        help: helper),
                   ),
                 ],
               ),
@@ -144,6 +130,30 @@ abstract class FuncWidget extends StatelessWidget {
           onTap(itemData);
         },
       ),
+    );
+  }
+
+  Widget buildReqWgt(
+      {@required EnvironSlider environSlider,
+      String label: 'id',
+      String help: ''}) {
+    return TextFormField(
+      decoration: InputDecoration(
+        icon: const Icon(Icons.account_box),
+        labelText: label,
+        helperText: help,
+      ),
+      keyboardType: TextInputType.name,
+      textInputAction: TextInputAction.next,
+      onFieldSubmitted: (value) {
+        print('on onFieldSubmitted in func_widget: ${environSlider.stateVal}');
+        final data = itemData.copyWith(
+            data: ReqResData(
+                UserReq(env: tags[environSlider.stateVal[0]], field: value),
+                null));
+        onSubmit(data);
+      },
+      controller: _textController,
     );
   }
 }
@@ -198,11 +208,15 @@ class UserInfoFuncWidget extends FuncWidget {
     Bloc bloc,
     FuncItemData itemData,
     bool isShort,
+    String label,
+    String helper,
   }) : super(
           index: index,
           bloc: bloc,
           itemData: itemData,
           isShort: isShort,
+          label: label,
+          helper: helper,
         );
 
   @override
@@ -245,12 +259,6 @@ class UserInfoFuncWidget extends FuncWidget {
   }
 
   @override
-  Widget buildReqWgt(FuncItemData data) {
-    // TODO: implement buildReq
-    throw UnimplementedError();
-  }
-
-  @override
   Widget buildResWgt(FuncItemData data) {
     return Container(
       color: Colors.lightBlue.shade50,
@@ -277,11 +285,15 @@ class UnbindFuncWidget extends FuncWidget {
     Bloc bloc,
     FuncItemData itemData,
     bool isShort,
+    String label,
+    String helper,
   }) : super(
           index: index,
           bloc: bloc,
           itemData: itemData,
           isShort: isShort,
+          label: label,
+          helper: helper,
         );
 
   @override
@@ -320,11 +332,6 @@ class UnbindFuncWidget extends FuncWidget {
       }
     }
     return null;
-  }
-
-  @override
-  Widget buildReqWgt(FuncItemData data) {
-    throw UnimplementedError();
   }
 
   @override
