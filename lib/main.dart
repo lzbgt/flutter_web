@@ -19,31 +19,32 @@ void main() async {
   final injector = Injector.appInstance;
   await Hive.initFlutter();
   final box = await Hive.openBox('default');
+  final cst = Consts();
   injector.registerDependency<Box>(() => box);
-  runApp(MyApp());
+  final u = box.get(cst.loginUsername);
+  final p = box.get(cst.loginPassword);
+  final sta = LoginState(
+    phone: u != null ? Phone.dirty(u) : Phone.pure(),
+    password: p != null ? Password.dirty(p) : Password.pure(),
+    status: FormzStatus.valid,
+  );
+
+  runApp(MyApp(sta: sta));
 }
 
 class MyApp extends StatelessWidget {
-  MyApp();
+  MyApp({@required this.sta});
+  final LoginState sta;
   // This widget is the root of your application.
   final homeBodyWidget = HomeBodyWidget();
   @override
   Widget build(BuildContext context) {
-    final cst = Consts();
-    final box = Injector.appInstance.get<Box>();
     return MaterialApp(
         title: Consts().appName,
         initialRoute: '/login',
         routes: {
           '/login': (context) => BlocProvider<LoginBloc>(
                 create: (BuildContext context) {
-                  final u = box.get(cst.loginUsername);
-                  final p = box.get(cst.loginPassword);
-                  final sta = LoginState(
-                    phone: u != null ? Phone.dirty(u) : Phone.pure(),
-                    password: p != null ? Password.dirty(p) : Password.pure(),
-                    status: FormzStatus.valid,
-                  );
                   return LoginBloc.withState(defaultState: sta);
                 },
                 child: LoginPage(),
