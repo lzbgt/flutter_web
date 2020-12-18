@@ -157,14 +157,16 @@ class _LoginState extends State<LoginPage> {
                 );
             } else {}
           },
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                PhoneWidget(focusNode: _phoneFocus),
-                PasswordWidget(focusNode: _passwordFocus),
-                SubmitButton(),
-              ],
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  PhoneWidget(focusNode: _phoneFocus),
+                  PasswordWidget(focusNode: _passwordFocus),
+                  SubmitButton(),
+                ],
+              ),
             ),
           ),
         ));

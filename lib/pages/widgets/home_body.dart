@@ -32,80 +32,84 @@ class _HomeBodyWidgetState extends State<HomeBodyWidget> {
           print('new state $state');
         }
 
-        return Column(
-          children: [
-            Expanded(
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 2 / 3,
-                child: ListView.builder(
-                  itemCount: viewData.length,
-                  itemBuilder: (context, index) {
-                    final _data = viewData[index]; //UnbindFuncWidget
-                    if (_data is FuncItemData) {
-                      if (_data.index == 0) {
-                        return UserInfoFuncWidget(
-                          index: index,
-                          bloc: context.read<HomeBloc>(),
-                          itemData: _data,
-                          isShort: false,
-                          label: 'Ientity',
-                          helper:
-                              'MobileNumber/BoxDeviceID/BoxNodeID/NetworkID',
-                        );
-                      } else if (_data.index == 1) {
-                        return UnbindFuncWidget(
-                          index: index,
-                          bloc: context.read<HomeBloc>(),
-                          itemData: _data,
-                          isShort: false,
-                          label: 'BoxDeviceID',
-                          helper: 'EBox Device Serial Number',
-                        );
-                      } else {}
-                    }
-                    throw UnimplementedError("not implemented yet");
-                  },
+        return SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 2 / 3,
+                  child: ListView.builder(
+                    itemCount: viewData.length,
+                    itemBuilder: (context, index) {
+                      final _data = viewData[index]; //UnbindFuncWidget
+                      if (_data is FuncItemData) {
+                        if (_data.index == 0) {
+                          return UserInfoFuncWidget(
+                            index: index,
+                            bloc: context.read<HomeBloc>(),
+                            itemData: _data,
+                            isShort: false,
+                            label: 'Ientity',
+                            helper:
+                                'MobileNumber/BoxDeviceID/BoxNodeID/NetworkID',
+                          );
+                        } else if (_data.index == 1) {
+                          return UnbindFuncWidget(
+                            index: index,
+                            bloc: context.read<HomeBloc>(),
+                            itemData: _data,
+                            isShort: false,
+                            label: 'BoxDeviceID',
+                            helper: 'EBox Device Serial Number',
+                          );
+                        } else {}
+                      }
+                      throw UnimplementedError("not implemented yet");
+                    },
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Icon(Icons.text_fields),
-                  Expanded(child: TextFormField()),
-                  FlatButton(
-                      child: Icon(Icons.menu),
-                      onPressed: () async {
-                        print('editor tap');
-                        var index = await showDialog(
-                          context: context,
-                          builder: (context) {
-                            return Dialog(
-                              insetPadding: EdgeInsets.only(
-                                top: MediaQuery.of(context).size.height * 2 / 6,
-                                left: 80.0,
-                                right: 80.0,
-                                bottom: 80.0,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: FuncPickWdiget(funcList: funcList),
-                            );
-                          },
-                        );
-                        if (index != null) {
-                          final api = context.read<HomeBloc>().api;
-                          context.read<HomeBloc>().add(
-                              NewFuncModEvent(data: api.getFuncMods()[index]));
-                        }
-                      }),
-                  RaisedButton(onPressed: () {}, child: Text('Send')),
-                ],
-              ),
-            )
-          ],
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.text_fields),
+                    Expanded(child: TextFormField()),
+                    FlatButton(
+                        child: Icon(Icons.menu),
+                        onPressed: () async {
+                          print('editor tap');
+                          var index = await showDialog(
+                            context: context,
+                            builder: (context) {
+                              return Dialog(
+                                insetPadding: EdgeInsets.only(
+                                  top: MediaQuery.of(context).size.height *
+                                      2 /
+                                      6,
+                                  left: 80.0,
+                                  right: 80.0,
+                                  bottom: 80.0,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: FuncPickWdiget(funcList: funcList),
+                              );
+                            },
+                          );
+                          if (index != null) {
+                            final api = context.read<HomeBloc>().api;
+                            context.read<HomeBloc>().add(NewFuncModEvent(
+                                data: api.getFuncMods()[index]));
+                          }
+                        }),
+                    RaisedButton(onPressed: () {}, child: Text('Send')),
+                  ],
+                ),
+              )
+            ],
+          ),
         );
       },
     );
