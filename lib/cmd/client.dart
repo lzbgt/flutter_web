@@ -2,11 +2,8 @@ import 'dart:io';
 import 'dart:async';
 
 import 'dart/box/api.pb.dart';
-import 'dart/box/common.pb.dart';
-import 'dart/box/im.pb.dart';
 import 'dart/box/account.pb.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:protobuf/protobuf.dart';
 import "dart:typed_data";
 //import 'package:binary/binary.dart';
 
@@ -43,11 +40,18 @@ void main() async {
     authreq.uid = Int64(266);
 
     req.content = authreq.writeToBuffer();
+    print('content: \n');
+    print(dumpHexToString(req.content));
+    print('\n');
 
     req.serverVersion = version;
-    req.operation = ApiOperation.AuthenticationOp;
+    req.operation = ApiOperation.valueOf(0);
 
-    print(dumpHexToString(req.writeToBuffer()));
+    final Uint8List bs = req.writeToBuffer();
+
+    print(dumpHexToString(bs.sublist(2)));
+
+    print("\n\n");
 
     //Establish the onData, and onDone callbacks
     socket.listen((data) {
@@ -57,6 +61,6 @@ void main() async {
       socket.destroy();
     });
 
-    socket.write(req.writeToBuffer());
+    socket.write(bs.sublist(2));
   });
 }

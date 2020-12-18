@@ -175,8 +175,14 @@ func (c *Conn) Send(code eboxpb.ApiOperation, m proto.Message) bool {
 	}
 
 	dumper := hex.Dumper(os.Stdout)
-	defer dumper.Close()
+	fmt.Println("content:")
+	dumper.Write(req.Content)
+	dumper.Close()
+	fmt.Printf("\n\n")
+	dumper = hex.Dumper(os.Stdout)
 	dumper.Write(bs)
+	dumper.Close()
+	fmt.Printf("\n\n")
 
 	id := atomic.AddInt32(&c.id, 1)
 	n, err := c.Write(encodeFrame(id, 0, bs))
