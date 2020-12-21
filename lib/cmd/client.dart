@@ -24,7 +24,9 @@ Uint8List int32BigEndianBytes(int value) =>
 Uint8List uint32BigEndianBytes(int value) =>
     Uint8List(4)..buffer.asByteData().setUint32(0, value, Endian.big);
 
-Uint8List encodeFrame(Int32 id, int source, Uint8List b) {}
+Uint8List encodeFrame(Int32 id, int source, Uint8List b) {
+  ByteData bd;
+}
 
 // test
 void main() async {
