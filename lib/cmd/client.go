@@ -67,7 +67,7 @@ type Frame struct {
 	Data   []byte
 }
 
-func encodeFrameHeader(bytes []byte) FrameHeader {
+func decodeFrameHeader(bytes []byte) FrameHeader {
 	b125 := binary.BigEndian.Uint32(bytes[1:5])
 	p := FrameHeader{
 		Version:  bytes[0],
@@ -80,7 +80,7 @@ func encodeFrameHeader(bytes []byte) FrameHeader {
 	return p
 }
 
-func decodeFrameHeader(header FrameHeader) []byte {
+func encodeFrameHeader(header FrameHeader) []byte {
 	b := make([]byte, 0)
 	uint32byte := make([]byte, 4)
 	binary.BigEndian.PutUint32(uint32byte, uint32(header.StreamID)&0x7FFFFFFF|(uint32(header.Source)<<31))
@@ -90,6 +90,12 @@ func decodeFrameHeader(header FrameHeader) []byte {
 	b = append(b, byte(header.Flag))
 	binary.BigEndian.PutUint32(uint32byte, uint32(header.Length))
 	b = append(b, uint32byte[1:]...)
+
+	dumper := hex.Dumper(os.Stdout)
+	fmt.Println("header:")
+	dumper.Write(b)
+	dumper.Close()
+
 	return b
 }
 
@@ -102,7 +108,7 @@ func encodeFrame(streamID int32, source source, b []byte) []byte {
 		StreamID: streamID,
 	}
 	header.Length = int32(len(b))
-	buf := decodeFrameHeader(header)
+	buf := encodeFrameHeader(header)
 	buf = append(buf, b...)
 	return buf
 }
@@ -134,7 +140,7 @@ func (c *Conn) receive(frameChan chan []byte) {
 			writePos = n + writePos
 		}
 		for (readPos + frameHeaderByteLength) <= writePos {
-			header := encodeFrameHeader(buf[readPos : readPos+frameHeaderByteLength])
+			header := decodeFrameHeader(buf[readPos : readPos+frameHeaderByteLength])
 			readPos = readPos + frameHeaderByteLength
 			i++
 			left := int(header.Length)
@@ -185,7 +191,14 @@ func (c *Conn) Send(code eboxpb.ApiOperation, m proto.Message) bool {
 	fmt.Printf("\n\n")
 
 	id := atomic.AddInt32(&c.id, 1)
-	n, err := c.Write(encodeFrame(id, 0, bs))
+	whole := encodeFrame(id, 0, bs)
+	fmt.Printf("whole frame:\n")
+	dumper = hex.Dumper(os.Stdout)
+	dumper.Write(whole)
+	dumper.Close()
+	fmt.Printf("\n\n")
+
+	n, err := c.Write(whole)
 	println(n)
 	if err != nil {
 		println(err)
