@@ -33,7 +33,7 @@
 #ifndef ZEROTIER_H
 #define ZEROTIER_H
 
-// #include "ZeroTierConstants.h"
+#include "ZeroTierConstants.h"
 
 #include <stdint.h>
 
