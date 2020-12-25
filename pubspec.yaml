@@ -23,21 +23,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  bloc:
   flutter_bloc:
   injector:
   equatable:
   dio:
+  cubit:
   #http:
   formz:
+  provider: '>=4.1.1'
   hive:
-  hive_flutter:
+  hive_flutter:  '>=0.3.1'
   #sqflite:
   meta:
   flutter_sequence_animation:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.1
+  cupertino_icons:
 
 # dependency_overrides:
 #   sqflite:

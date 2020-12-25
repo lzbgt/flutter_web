@@ -1,9 +1,7 @@
-import 'package:etstool/model/common/api_dt.dart';
+import 'package:provider/provider.dart';
 import 'package:etstool/pages/widgets/func_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive/hive.dart';
-import 'package:injector/injector.dart';
 import '../../bloc/home/home_bloc.dart';
 import 'func_picker.dart';
 import '../../model/home/func.dart';

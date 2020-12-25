@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
-import 'package:hive/hive.dart';
-import 'package:injector/injector.dart';
 import '../const/consts.dart';
+import 'package:provider/provider.dart';
 
 class PhoneWidget extends StatelessWidget {
   const PhoneWidget({key, @required this.focusNode}) : super(key: key);

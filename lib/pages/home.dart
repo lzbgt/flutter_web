@@ -1,11 +1,7 @@
 import 'package:etstool/bloc/home/home_bloc.dart';
-import 'package:etstool/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-
-import 'package:injector/injector.dart';
+import 'package:provider/provider.dart';
 import '../const/consts.dart';
 import 'widgets/home_drawer.dart';
 import 'widgets/home_body.dart';
