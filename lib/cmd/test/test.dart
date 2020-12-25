@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import '../dart/box/api.pb.dart';
 import '../dart/box/account.pb.dart';
 import 'package:fixnum/fixnum.dart';
-import "dart:typed_data";
 
 String _dump(List<int> data) {
   StringBuffer sb = StringBuffer();
@@ -14,7 +13,7 @@ String _dump(List<int> data) {
   return sb.toString();
 }
 
-main() {
+main() async {
   AuthenticationRequest authR = AuthenticationRequest();
   ApiRequest req = ApiRequest();
   authR.boxToken = 'ABC';
@@ -33,4 +32,34 @@ main() {
   });
 
   ctrl.add("evvv");
+
+  await for (var v in getFutureInt().asStream()) {
+    print(v);
+  }
+
+  getFutureInt().then((value) => print(value));
+
+  print(ForInList(1, ['a', 'b', 'c']));
+}
+
+Future<int> getFutureInt() {
+  final Completer<int> cmpl = Completer<int>();
+  var cnt = 0;
+  Future<void>.delayed(Duration(seconds: 1), () {
+    cnt++;
+    cmpl.complete(cnt);
+  });
+
+  return cmpl.future;
+}
+
+class ForInList {
+  ForInList(this.id, this.tags);
+  int id;
+  List<String> tags;
+
+  @override
+  String toString() {
+    return [id, for (var tag in tags) 'tag: $tag'].join(',');
+  }
 }

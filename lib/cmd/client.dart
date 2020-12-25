@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:protobuf/protobuf.dart' as $pb;
 import 'package:binary/binary.dart';
 
 import 'dart/box/api.pb.dart';
@@ -32,28 +33,17 @@ class HuskyClient {
   final Int64 uid;
 
   Socket _sock;
+  final _controller = StreamController();
 
-  // frame serialization
-  Uint8List encodeFrame(int id, Uint8List b) {
-    Uint8List buf = Uint8List(10);
-    ByteData bd = ByteData.view(buf.buffer);
-    bd.setUint8(0, apiVersion); // 1
-    bd.setUint32(1, (id & 0x7FFFFFFF) | (source << 31), Endian.big); // 4 + 1
-    bd.setUint8(5, frameType); // 1 + 4 + 1
-    bd.setUint8(6, frameFlag); // 1 + 1 + 4 + 1
-
-    // length
-    bd.setUint8(7, (b.length & 0x00FF0000) >> 16); // 8
-    bd.setUint8(8, (b.length & 0x00FF00) >> 8); // 9
-    bd.setUint8(9, (b.length & 0x00FF)); //10
-
-    // print('frame header:\n');
-    // print(dumpHexToString(buf));
-    // print('\n');
-
-    return Uint8List.fromList(buf.toList() + b.toList());
+  Stream<ApiResponse> get stream => _controller.stream;
+  Future<ApiResponse> send(ApiOperation opc, $pb.GeneratedMessage m) {
+    _controller.add(resp);
+    return _controller.stream;
   }
 
+  close() {}
+
+  // hexString .
   static String hexString(List<int> data) {
     StringBuffer sb = StringBuffer();
     data.forEach((f) {
@@ -62,13 +52,33 @@ class HuskyClient {
     });
     return sb.toString();
   }
+
+  // encodeFrame: frame serialization
+  Uint8List encodeFrame(int id, Uint8List b) {
+    Uint8List buf = Uint8List(10);
+    ByteData bd = ByteData.view(buf.buffer);
+    bd.setUint8(0, apiVersion); // 1
+    bd.setUint32(1, (id & 0x7FFFFFFF) | (source << 31), Endian.big); // 4 + 1
+    bd.setUint8(5, frameType); // 1 + 4 + 1
+    bd.setUint8(6, frameFlag); // 1 + 1 + 4 + 1
+    // length
+    bd.setUint8(7, (b.length & 0x00FF0000) >> 16); // 8
+    bd.setUint8(8, (b.length & 0x00FF00) >> 8); // 9
+    bd.setUint8(9, (b.length & 0x00FF)); //10
+    return Uint8List.fromList(buf.toList() + b.toList());
+  }
+
+  // decodeFrame: decode frame into api response
+  ApiResponse decodeFrame(Uint8List b) {
+    return null;
+  }
 }
 
-Uint8List int32BigEndianBytes(int value) =>
-    Uint8List(4)..buffer.asByteData().setInt32(0, value, Endian.big);
+// Uint8List int32BigEndianBytes(int value) =>
+//     Uint8List(4)..buffer.asByteData().setInt32(0, value, Endian.big);
 
-Uint8List uint32BigEndianBytes(int value) =>
-    Uint8List(4)..buffer.asByteData().setUint32(0, value, Endian.big);
+// Uint8List uint32BigEndianBytes(int value) =>
+//     Uint8List(4)..buffer.asByteData().setUint32(0, value, Endian.big);
 
 // test
 void main() async {
