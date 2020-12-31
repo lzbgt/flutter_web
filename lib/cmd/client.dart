@@ -11,7 +11,7 @@ import "dart:typed_data";
 import "package:meta/meta.dart";
 //import 'package:binary/binary.dart';
 
-class HuskyClient {
+class HuskyClient extends Stream<ApiResponse> {
   HuskyClient({
     @required this.hostAddr,
     @required this.token,
@@ -31,17 +31,12 @@ class HuskyClient {
   final String hostAddr;
   final String token;
   final Int64 uid;
-
-  Socket _sock;
-  final _controller = StreamController();
-
-  Stream<ApiResponse> get stream => _controller.stream;
-  Future<ApiResponse> send(ApiOperation opc, $pb.GeneratedMessage m) {
-    _controller.add(resp);
-    return _controller.stream;
-  }
-
-  close() {}
+  final _controller = StreamController<ApiResponse>();
+  Socket _socket;
+  List<int> _cache = <int>[];
+  int _writePos = 0;
+  var _connCompl = Completer<Socket>();
+  int _streamId = 0;
 
   // hexString .
   static String hexString(List<int> data) {
@@ -71,6 +66,61 @@ class HuskyClient {
   // decodeFrame: decode frame into api response
   ApiResponse decodeFrame(Uint8List b) {
     return null;
+  }
+
+  bool _sendAuth() {
+    if (_connCompl.isCompleted) {
+      AuthenticationRequest req = AuthenticationRequest();
+      req.uid = uid;
+      req.boxToken = token;
+      return send(ApiOperation.AuthenticationOp, req);
+    }
+  }
+
+  bool send(ApiOperation code, $pb.GeneratedMessage m) {
+    if (_connCompl.isCompleted) {
+      ApiRequest req = ApiRequest();
+      req.content = m.writeToBuffer();
+      req.operation = code;
+      req.serverVersion = serverVersion;
+      _streamId++;
+      Uint8List frame = encodeFrame(_streamId, req.writeToBuffer());
+      _socket.add(frame);
+      return true;
+    } else {
+      print('err: listen first');
+      return false;
+    }
+  }
+
+  @override
+  StreamSubscription<ApiResponse> listen(
+      void Function(ApiResponse event) onData,
+      {Function onError,
+      void Function() onDone,
+      bool cancelOnError}) {
+    Socket.connect('68.0.0.7', 7777).then((value) {
+      _connCompl.complete(value);
+      _socket = value;
+      // send auth req
+      _sendAuth();
+      value.listen((event) {
+        var _conv = List<int>.from(event);
+        _cache.addAll(_conv);
+        _writePos += _conv.length;
+        // TODO: decode
+        var res = ApiResponse();
+        res.code = _writePos;
+        _controller.add(res);
+      });
+    }, onError: (err) {
+      _connCompl.completeError(err);
+      print(err);
+      _controller.addError(err);
+    }).timeout(Duration(seconds: 10));
+
+    return _controller.stream.listen(onData,
+        onError: onError, onDone: onDone, cancelOnError: cancelOnError);
   }
 }
 
@@ -122,4 +172,17 @@ void main() async {
 
   //   socket.add(frame);
   // });
+
+  var client = HuskyClient(
+      hostAddr: "68.0.0.7:7777",
+      token:
+          'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE0aMMRDs+0NI7Fdo57u6VlUL7+NnwJsi4ZJw59aTOlbV/iuE+w2gQwW5b5h+yFPeBnWDYOgB+vMhiqdNlAGLhRA==',
+      uid: Int64(521));
+
+  client.listen((event) {
+    print(event);
+  }, onError: (err) {
+    //
+    print(err);
+  });
 }

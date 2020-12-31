@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import '../dart/box/api.pb.dart';
 import '../dart/box/account.pb.dart';
 import 'package:fixnum/fixnum.dart';
+import 'dart:io';
 
 String _dump(List<int> data) {
   StringBuffer sb = StringBuffer();
@@ -26,20 +27,35 @@ main() async {
 
   print(_dump(req.writeToBuffer()));
 
-  final ctrl = StreamController<String>();
-  final sub = ctrl.stream.listen((event) {
-    print(event);
+  // final ctrl = StreamController<String>();
+  // final sub = ctrl.stream.listen((event) {
+  //   print(event);
+  // });
+
+  // ctrl.add("evvv");
+
+  // await for (var v in getFutureInt().asStream()) {
+  //   print(v);
+  // }
+
+  // getFutureInt().then((value) => print(value));
+
+  // print(ForInList(1, ['a', 'b', 'c']));
+  // print(Underscore._(1));
+
+  var completer = new Completer();
+  var future = completer.future.then((x) => x + 1);
+  var zoneFuture;
+  runZonedGuarded(() {
+    zoneFuture = future.then((y) => print(y));
+  }, (error, stack) {
+    print('Caught: $error');
   });
 
-  ctrl.add("evvv");
-
-  await for (var v in getFutureInt().asStream()) {
-    print(v);
-  }
-
-  getFutureInt().then((value) => print(value));
-
-  print(ForInList(1, ['a', 'b', 'c']));
+  zoneFuture.catchError((e) {
+    print('Never reached');
+  });
+  completer.complete(499);
 }
 
 Future<int> getFutureInt() {
@@ -61,5 +77,14 @@ class ForInList {
   @override
   String toString() {
     return [id, for (var tag in tags) 'tag: $tag'].join(',');
+  }
+}
+
+class Underscore {
+  final int value;
+  Underscore._(this.value);
+  @override
+  String toString() {
+    return value.toString();
   }
 }
