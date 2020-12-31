@@ -63,11 +63,6 @@ class HuskyClient extends Stream<ApiResponse> {
     return Uint8List.fromList(buf.toList() + b.toList());
   }
 
-  // decodeFrame: decode frame into api response
-  ApiResponse decodeFrame(Uint8List b) {
-    return null;
-  }
-
   bool _sendAuth() {
     if (_connCompl.isCompleted) {
       AuthenticationRequest req = AuthenticationRequest();
@@ -75,6 +70,7 @@ class HuskyClient extends Stream<ApiResponse> {
       req.boxToken = token;
       return send(ApiOperation.AuthenticationOp, req);
     }
+    return false;
   }
 
   bool send(ApiOperation code, $pb.GeneratedMessage m) {
@@ -105,13 +101,31 @@ class HuskyClient extends Stream<ApiResponse> {
       // send auth req
       _sendAuth();
       value.listen((event) {
+        print(event);
         var _conv = List<int>.from(event);
         _cache.addAll(_conv);
         _writePos += _conv.length;
-        // TODO: decode
-        var res = ApiResponse();
-        res.code = _writePos;
+        if (_cache.length < 10) {
+          print('wait more 1\n');
+          return;
+        }
+        // decode header
+        var bd = ByteData.view(Uint8List.fromList(_cache).buffer);
+        var version = bd.getInt8(0);
+        var hex = bd.getUint32(1, Endian.big);
+        var ftype = bd.getInt8(5);
+        var flag = bd.getInt8(6);
+        var remain = bd.getInt32(6, Endian.big) & 0x00FFFFFF;
+        print(
+            'version: $version, ftype: $ftype, flag: $flag, remain: $remain \n');
+        if (_cache.length < 10 + remain) {
+          print('wait more 2\n');
+          return;
+        }
+
+        var res = ApiResponse.fromBuffer(_cache.sublist(10));
         _controller.add(res);
+        _cache.clear();
       });
     }, onError: (err) {
       _connCompl.completeError(err);
@@ -132,7 +146,7 @@ class HuskyClient extends Stream<ApiResponse> {
 
 // test
 void main() async {
-  // Socket.connect('68.0.0.7', 7777).then((socket) {
+  // Socket.connect('68.0.0.6', 7777).then((socket) {
   //   print("connected");
   //   AuthenticationRequest authreq = AuthenticationRequest();
   //   AuthenticationResponse authresp = AuthenticationResponse();
@@ -176,8 +190,8 @@ void main() async {
   var client = HuskyClient(
       hostAddr: "68.0.0.7:7777",
       token:
-          'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE0aMMRDs+0NI7Fdo57u6VlUL7+NnwJsi4ZJw59aTOlbV/iuE+w2gQwW5b5h+yFPeBnWDYOgB+vMhiqdNlAGLhRA==',
-      uid: Int64(521));
+          'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdmYqKy6699SFbaLD4fNBHlT2pBc/cYC7MdoYPlldh+XGiu0yfdJTZ5GpSf+d6HT5nuuM4EwIoM/fjhkZiHUcBA==',
+      uid: Int64(292));
 
   client.listen((event) {
     print(event);
