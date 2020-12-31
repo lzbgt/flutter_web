@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:protobuf/protobuf.dart' as $pb;
-import 'package:binary/binary.dart';
+import 'dart/box/conversation.pb.dart';
 
 import 'dart/box/api.pb.dart';
 import 'dart/box/account.pb.dart';
@@ -11,7 +11,7 @@ import "dart:typed_data";
 import "package:meta/meta.dart";
 //import 'package:binary/binary.dart';
 
-class HuskyClient extends Stream<ApiResponse> {
+class HuskyClient {
   HuskyClient({
     @required this.hostAddr,
     @required this.token,
@@ -31,12 +31,13 @@ class HuskyClient extends Stream<ApiResponse> {
   final String hostAddr;
   final String token;
   final Int64 uid;
-  final _controller = StreamController<ApiResponse>();
   Socket _socket;
   List<int> _cache = <int>[];
   int _writePos = 0;
   var _connCompl = Completer<Socket>();
+  var _authCompl = Completer<String>();
   int _streamId = 0;
+  var _cplMap = Map<int, Completer<ApiResponse>>();
 
   // hexString .
   static String hexString(List<int> data) {
@@ -63,18 +64,16 @@ class HuskyClient extends Stream<ApiResponse> {
     return Uint8List.fromList(buf.toList() + b.toList());
   }
 
-  bool _sendAuth() {
-    if (_connCompl.isCompleted) {
-      AuthenticationRequest req = AuthenticationRequest();
-      req.uid = uid;
-      req.boxToken = token;
-      return send(ApiOperation.AuthenticationOp, req);
-    }
-    return false;
+  Future<ApiResponse> _sendAuth() async {
+    AuthenticationRequest req = AuthenticationRequest();
+    req.uid = uid;
+    req.boxToken = token;
+    return _send(ApiOperation.AuthenticationOp, req);
   }
 
-  bool send(ApiOperation code, $pb.GeneratedMessage m) {
-    if (_connCompl.isCompleted) {
+  Future<ApiResponse> _send(ApiOperation code, $pb.GeneratedMessage m) {
+    var _cpl = Completer<ApiResponse>();
+    _connCompl.future.then((value) {
       ApiRequest req = ApiRequest();
       req.content = m.writeToBuffer();
       req.operation = code;
@@ -82,24 +81,30 @@ class HuskyClient extends Stream<ApiResponse> {
       _streamId++;
       Uint8List frame = encodeFrame(_streamId, req.writeToBuffer());
       _socket.add(frame);
-      return true;
-    } else {
-      print('err: listen first');
-      return false;
-    }
+      _cplMap[_streamId] = _cpl;
+    }, onError: (err) {
+      //
+      _cpl.complete(err);
+    });
+    return _cpl.future;
   }
 
-  @override
-  StreamSubscription<ApiResponse> listen(
-      void Function(ApiResponse event) onData,
-      {Function onError,
-      void Function() onDone,
-      bool cancelOnError}) {
+  Future<ApiResponse> send(ApiOperation code, $pb.GeneratedMessage m) {
+    return _authCompl.future.then((value) => _send(code, m));
+  }
+
+  void connect() {
     Socket.connect('68.0.0.7', 7777).then((value) {
       _connCompl.complete(value);
       _socket = value;
       // send auth req
-      _sendAuth();
+      _sendAuth().then((value) {
+        if (value.code == 0) {
+          _authCompl.complete('');
+        } else {
+          _authCompl.completeError(value.message);
+        }
+      }, onError: (err) => _authCompl.completeError(err));
       value.listen((event) {
         print(event);
         var _conv = List<int>.from(event);
@@ -107,34 +112,32 @@ class HuskyClient extends Stream<ApiResponse> {
         _writePos += _conv.length;
         if (_cache.length < 10) {
           print('wait more 1\n');
-          return;
         }
         // decode header
         var bd = ByteData.view(Uint8List.fromList(_cache).buffer);
         var version = bd.getInt8(0);
         var hex = bd.getUint32(1, Endian.big);
+        var id = hex & 0x7FFFFFFF;
         var ftype = bd.getInt8(5);
         var flag = bd.getInt8(6);
         var remain = bd.getInt32(6, Endian.big) & 0x00FFFFFF;
         print(
-            'version: $version, ftype: $ftype, flag: $flag, remain: $remain \n');
+            'version: $version, ftype: $ftype, id: $id, flag: $flag, remain: $remain \n');
         if (_cache.length < 10 + remain) {
           print('wait more 2\n');
-          return;
         }
 
         var res = ApiResponse.fromBuffer(_cache.sublist(10));
-        _controller.add(res);
+        if (id == 1) {
+          print('auth: $res');
+        }
+        _cplMap[id].complete(res);
         _cache.clear();
       });
     }, onError: (err) {
       _connCompl.completeError(err);
       print(err);
-      _controller.addError(err);
     }).timeout(Duration(seconds: 10));
-
-    return _controller.stream.listen(onData,
-        onError: onError, onDone: onDone, cancelOnError: cancelOnError);
   }
 }
 
@@ -193,10 +196,9 @@ void main() async {
           'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdmYqKy6699SFbaLD4fNBHlT2pBc/cYC7MdoYPlldh+XGiu0yfdJTZ5GpSf+d6HT5nuuM4EwIoM/fjhkZiHUcBA==',
       uid: Int64(292));
 
-  client.listen((event) {
-    print(event);
-  }, onError: (err) {
-    //
-    print(err);
-  });
+  client.connect();
+  var req = ListConversationRequest();
+
+  var res = await client.send(ApiOperation.ListConversationOp, req);
+  print(res);
 }
