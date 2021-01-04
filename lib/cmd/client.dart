@@ -94,7 +94,18 @@ class HuskyClient {
   }
 
   void connect() {
-    Socket.connect('68.0.0.7', 7777).then((value) {
+    final sp = hostAddr.split(':');
+    final String host = sp[0];
+    int port = 7777;
+    try {
+      if (sp.length == 2) {
+        port = int.parse(sp[1]);
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    Socket.connect(host, port).then((value) {
       _connCompl.complete(value);
       _socket = value;
       // send auth req
@@ -159,5 +170,6 @@ void main() async {
   var req = ListConversationRequest();
 
   var res = await client.send(ApiOperation.ListConversationOp, req);
-  print(res);
+  var rep = ListConversationResponse.fromBuffer(res.content);
+  print('code: ${res.code}\nres: $res\nrep: $rep');
 }
