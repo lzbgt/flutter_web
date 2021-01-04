@@ -42,6 +42,7 @@ class HuskyClient {
   //int _writePos = 0;
   var _connCompl = Completer<Socket>();
   var _authCompl = Completer<Socket>();
+  var _resCompl = Completer<Exception>();
   int _streamId = 0;
   var _cplMap = Map<int, Completer<ApiResponse>>();
   StreamSubscription<Uint8List> sub;
@@ -112,7 +113,7 @@ class HuskyClient {
       // ignore
     }
 
-    var s = Socket.connect(host, port).then((value) {
+    var s = Socket.connect(host, port, timeout: timeoutConn).then((value) {
       _connCompl.complete(value);
       _socket = value;
       // send auth req
@@ -123,48 +124,63 @@ class HuskyClient {
           _authCompl.completeError(value.message);
         }
       }, onError: (err) {
-        _authCompl.completeError(err);
+        // _authCompl.completeError(err);
         throw err;
       });
 
       sub = value.listen((event) {
-        print(event);
-        var _conv = List<int>.from(event);
-        _cache.addAll(_conv);
-        //_writePos += _conv.length;
-        if (_cache.length < 10) {
-          // print('wait more 1\n');
-        }
-        // decode header
-        var bd = ByteData.view(Uint8List.fromList(_cache).buffer);
-        var version = bd.getInt8(0);
-        var hex = bd.getUint32(1, Endian.big);
-        var id = hex & 0x7FFFFFFF;
-        var ftype = bd.getInt8(5);
-        var flag = bd.getInt8(6);
-        var remain = bd.getInt32(6, Endian.big) & 0x00FFFFFF;
-        print(
-            'version: $version, ftype: $ftype, id: $id, flag: $flag, remain: $remain \n');
-        if (_cache.length < 10 + remain) {
-          // print('wait more 2\n');
-        }
+        // print(event);
+        int id;
+        try {
+          var _conv = List<int>.from(event);
+          _cache.addAll(_conv);
+          //_writePos += _conv.length;
+          if (_cache.length < 10) {
+            // print('wait more 1\n');
+          }
+          // decode header
+          var bd = ByteData.view(Uint8List.fromList(_cache).buffer);
+          var version = bd.getInt8(0);
+          var hex = bd.getUint32(1, Endian.big);
+          id = hex & 0x7FFFFFFF;
+          var ftype = bd.getInt8(5);
+          var flag = bd.getInt8(6);
+          var remain = bd.getInt32(6, Endian.big) & 0x00FFFFFF;
+          print(
+              'version: $version, ftype: $ftype, id: $id, flag: $flag, remain: $remain \n');
+          if (_cache.length < 10 + remain) {
+            // print('wait more 2\n');
+          }
 
-        var res = ApiResponse.fromBuffer(_cache.sublist(10));
-        if (id == 1) {
-          // print('auth: $res');
+          var res = ApiResponse.fromBuffer(_cache.sublist(10));
+          if (id == 1) {
+            // print('auth: $res');
+          }
+          _cplMap[id].complete(res);
+          _cplMap.remove(id);
+          _cache.clear();
+        } catch (e) {
+          if (id != null) {
+            _cplMap[id].completeError(e);
+          } else {
+            // let any future completes with error
+            if (!_cplMap.isEmpty) {
+              _cplMap.values.first.completeError(e);
+            } else {
+              rethrow;
+            }
+          }
+          close();
         }
-        _cplMap[id].complete(res);
-        _cplMap.remove(id);
-        _cache.clear();
       });
 
-      return value;
+      return _connCompl.future;
     }, onError: (err) {
       // _authCompl.completeError(err);
       // _connCompl.completeError(err);
       // print('err1: $err');
       throw err;
-    }).timeout(timeoutConn);
+    });
 
     return s;
   }
@@ -176,6 +192,7 @@ class HuskyClient {
     if (_socket != null) {
       _socket.close();
     }
+    _cplMap.clear();
   }
 }
 
