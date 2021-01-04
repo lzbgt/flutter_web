@@ -35,7 +35,7 @@ class HuskyClient {
   List<int> _cache = <int>[];
   int _writePos = 0;
   var _connCompl = Completer<Socket>();
-  var _authCompl = Completer<String>();
+  var _authCompl = Completer<Socket>();
   int _streamId = 0;
   var _cplMap = Map<int, Completer<ApiResponse>>();
 
@@ -93,7 +93,7 @@ class HuskyClient {
     return _authCompl.future.then((value) => _send(code, m));
   }
 
-  void connect() {
+  Future<Socket> connect() {
     final sp = hostAddr.split(':');
     final String host = sp[0];
     int port = 7777;
@@ -111,7 +111,7 @@ class HuskyClient {
       // send auth req
       _sendAuth().then((value) {
         if (value.code == 0) {
-          _authCompl.complete('');
+          _authCompl.complete(_socket);
         } else {
           _authCompl.completeError(value.message);
         }
@@ -147,8 +147,10 @@ class HuskyClient {
       });
     }, onError: (err) {
       _connCompl.completeError(err);
+      _authCompl.completeError(err);
       print(err);
     }).timeout(Duration(seconds: 10));
+    return _authCompl.future;
   }
 }
 
@@ -166,7 +168,7 @@ void main() async {
           'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdmYqKy6699SFbaLD4fNBHlT2pBc/cYC7MdoYPlldh+XGiu0yfdJTZ5GpSf+d6HT5nuuM4EwIoM/fjhkZiHUcBA==',
       uid: Int64(292));
 
-  client.connect();
+  var s = await client.connect();
   var req = ListConversationRequest();
 
   var res = await client.send(ApiOperation.ListConversationOp, req);
