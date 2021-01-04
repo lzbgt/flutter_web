@@ -146,11 +146,11 @@ class HuskyClient {
         _cache.clear();
       });
     }, onError: (err) {
-      _connCompl.completeError(err);
-      _authCompl.completeError(err);
+      _connCompl.completeError('err1: $err');
+      _authCompl.completeError('err2: $err');
       print(err);
     }).timeout(Duration(seconds: 10));
-    return _authCompl.future;
+    return _connCompl.future;
   }
 }
 
@@ -164,11 +164,15 @@ class HuskyClient {
 void main() async {
   var client = HuskyClient(
       hostAddr: "68.0.0.7:7777",
+      //'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdmYqKy6699SFbaLD4fNBHlT2pBc/cYC7MdoYPlldh+XGiu0yfdJTZ5GpSf+d6HT5nuuM4EwIoM/fjhkZiHUcBA=='
       token:
           'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdmYqKy6699SFbaLD4fNBHlT2pBc/cYC7MdoYPlldh+XGiu0yfdJTZ5GpSf+d6HT5nuuM4EwIoM/fjhkZiHUcBA==',
       uid: Int64(292));
 
-  var s = await client.connect();
+  client.connect().catchError((err) {
+    print('error found: $err');
+  });
+
   var req = ListConversationRequest();
 
   var res = await client.send(ApiOperation.ListConversationOp, req);
