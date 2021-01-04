@@ -39,7 +39,7 @@ class HuskyClient {
   final Duration timeoutRecv;
   Socket _socket;
   List<int> _cache = <int>[];
-  int _writePos = 0;
+  //int _writePos = 0;
   var _connCompl = Completer<Socket>();
   var _authCompl = Completer<Socket>();
   int _streamId = 0;
@@ -100,7 +100,7 @@ class HuskyClient {
     return _authCompl.future.then((value) => _send(code, m));
   }
 
-  Future<Null> connect() {
+  Future<Socket> connect() async {
     final sp = hostAddr.split(':');
     final String host = sp[0];
     int port = 7777;
@@ -122,14 +122,18 @@ class HuskyClient {
         } else {
           _authCompl.completeError(value.message);
         }
-      }, onError: (err) => _authCompl.completeError(err));
+      }, onError: (err) {
+        _authCompl.completeError(err);
+        throw err;
+      });
+
       sub = value.listen((event) {
         print(event);
         var _conv = List<int>.from(event);
         _cache.addAll(_conv);
-        _writePos += _conv.length;
+        //_writePos += _conv.length;
         if (_cache.length < 10) {
-          print('wait more 1\n');
+          // print('wait more 1\n');
         }
         // decode header
         var bd = ByteData.view(Uint8List.fromList(_cache).buffer);
@@ -142,21 +146,26 @@ class HuskyClient {
         print(
             'version: $version, ftype: $ftype, id: $id, flag: $flag, remain: $remain \n');
         if (_cache.length < 10 + remain) {
-          print('wait more 2\n');
+          // print('wait more 2\n');
         }
 
         var res = ApiResponse.fromBuffer(_cache.sublist(10));
         if (id == 1) {
-          print('auth: $res');
+          // print('auth: $res');
         }
         _cplMap[id].complete(res);
+        _cplMap.remove(id);
         _cache.clear();
       });
+
+      return value;
     }, onError: (err) {
-      _authCompl.completeError(err);
-      _connCompl.completeError(err);
-      print(err);
+      // _authCompl.completeError(err);
+      // _connCompl.completeError(err);
+      // print('err1: $err');
+      throw err;
     }).timeout(timeoutConn);
+
     return s;
   }
 
@@ -170,16 +179,10 @@ class HuskyClient {
   }
 }
 
-// Uint8List int32BigEndianBytes(int value) =>
-//     Uint8List(4)..buffer.asByteData().setInt32(0, value, Endian.big);
-
-// Uint8List uint32BigEndianBytes(int value) =>
-//     Uint8List(4)..buffer.asByteData().setUint32(0, value, Endian.big);
-
 // test
 void main() async {
   var client = HuskyClient(
-      hostAddr: "68.0.0.7:7777",
+      hostAddr: "68.0.0.205:7777",
       //'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdmYqKy6699SFbaLD4fNBHlT2pBc/cYC7MdoYPlldh+XGiu0yfdJTZ5GpSf+d6HT5nuuM4EwIoM/fjhkZiHUcBA=='
       token:
           'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdmYqKy6699SFbaLD4fNBHlT2pBc/cYC7MdoYPlldh+XGiu0yfdJTZ5GpSf+d6HT5nuuM4EwIoM/fjhkZiHUcBA==',
@@ -187,16 +190,17 @@ void main() async {
 
   try {
     await client.connect();
-  } on TimeoutException catch (e) {
-    print('timeout on connect: ${client.hostAddr}: $e');
   } catch (e) {
-    print('timeout on connect: ${client.hostAddr}');
+    print('exception in connect: $e');
   }
 
   var req = ListConversationRequest();
 
   var res = await client.send(ApiOperation.ListConversationOp, req);
+
   var rep = ListConversationResponse.fromBuffer(res.content);
+
   print('code: ${res.code}\nres: $res\nrep: $rep');
+
   Future.delayed(Duration(seconds: 5)).then((value) => client.close());
 }
