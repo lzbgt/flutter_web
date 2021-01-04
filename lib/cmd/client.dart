@@ -21,6 +21,9 @@ class HuskyClient {
     this.frameType: 1,
     this.source: 0,
     this.apiVersion: 1,
+    this.timeoutConn: const Duration(seconds: 5),
+    this.timeoutSend: const Duration(seconds: 5),
+    this.timeoutRecv: const Duration(seconds: 5),
   });
 
   final int serverVersion;
@@ -31,6 +34,9 @@ class HuskyClient {
   final String hostAddr;
   final String token;
   final Int64 uid;
+  final Duration timeoutConn;
+  final Duration timeoutSend;
+  final Duration timeoutRecv;
   Socket _socket;
   List<int> _cache = <int>[];
   int _writePos = 0;
@@ -38,6 +44,7 @@ class HuskyClient {
   var _authCompl = Completer<Socket>();
   int _streamId = 0;
   var _cplMap = Map<int, Completer<ApiResponse>>();
+  StreamSubscription<Uint8List> sub;
 
   // hexString .
   static String hexString(List<int> data) {
@@ -85,7 +92,7 @@ class HuskyClient {
     }, onError: (err) {
       //
       _cpl.complete(err);
-    });
+    }).timeout(timeoutSend + timeoutRecv);
     return _cpl.future;
   }
 
@@ -93,7 +100,7 @@ class HuskyClient {
     return _authCompl.future.then((value) => _send(code, m));
   }
 
-  Future<Socket> connect() {
+  Future<Null> connect() {
     final sp = hostAddr.split(':');
     final String host = sp[0];
     int port = 7777;
@@ -105,7 +112,7 @@ class HuskyClient {
       // ignore
     }
 
-    Socket.connect(host, port).then((value) {
+    var s = Socket.connect(host, port).then((value) {
       _connCompl.complete(value);
       _socket = value;
       // send auth req
@@ -116,7 +123,7 @@ class HuskyClient {
           _authCompl.completeError(value.message);
         }
       }, onError: (err) => _authCompl.completeError(err));
-      value.listen((event) {
+      sub = value.listen((event) {
         print(event);
         var _conv = List<int>.from(event);
         _cache.addAll(_conv);
@@ -146,11 +153,20 @@ class HuskyClient {
         _cache.clear();
       });
     }, onError: (err) {
-      _connCompl.completeError('err1: $err');
-      _authCompl.completeError('err2: $err');
+      _authCompl.completeError(err);
+      _connCompl.completeError(err);
       print(err);
-    }).timeout(Duration(seconds: 10));
-    return _connCompl.future;
+    }).timeout(timeoutConn);
+    return s;
+  }
+
+  close() {
+    if (sub != null) {
+      sub.cancel();
+    }
+    if (_socket != null) {
+      _socket.close();
+    }
   }
 }
 
@@ -169,13 +185,18 @@ void main() async {
           'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdmYqKy6699SFbaLD4fNBHlT2pBc/cYC7MdoYPlldh+XGiu0yfdJTZ5GpSf+d6HT5nuuM4EwIoM/fjhkZiHUcBA==',
       uid: Int64(292));
 
-  client.connect().catchError((err) {
-    print('error found: $err');
-  });
+  try {
+    await client.connect();
+  } on TimeoutException catch (e) {
+    print('timeout on connect: ${client.hostAddr}: $e');
+  } catch (e) {
+    print('timeout on connect: ${client.hostAddr}');
+  }
 
   var req = ListConversationRequest();
 
   var res = await client.send(ApiOperation.ListConversationOp, req);
   var rep = ListConversationResponse.fromBuffer(res.content);
   print('code: ${res.code}\nres: $res\nrep: $rep');
+  Future.delayed(Duration(seconds: 5)).then((value) => client.close());
 }
