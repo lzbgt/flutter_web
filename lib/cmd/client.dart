@@ -44,7 +44,7 @@ class HuskyClient {
   var _authCompl = Completer<Socket>();
   int _streamId = 0;
   var _cplMap = Map<int, Completer<ApiResponse>>();
-  StreamSubscription<Uint8List> sub;
+  StreamSubscription<Uint8List> _sub;
 
   // hexString .
   static String hexString(List<int> data) {
@@ -123,11 +123,11 @@ class HuskyClient {
           _authCompl.completeError(value.message);
         }
       }, onError: (err) {
-        // _authCompl.completeError(err);
+        _authCompl.completeError(err);
         throw err;
       });
 
-      sub = value.listen((event) {
+      _sub = value.listen((event) {
         // print(event);
         int id;
         try {
@@ -172,8 +172,6 @@ class HuskyClient {
           close();
         }
       });
-
-      return _connCompl.future;
     }, onError: (err) {
       // _authCompl.completeError(err);
       // _connCompl.completeError(err);
@@ -185,13 +183,16 @@ class HuskyClient {
   }
 
   close() {
-    if (sub != null) {
-      sub.cancel();
+    if (_sub != null) {
+      _sub.cancel();
+      _sub = null;
     }
     if (_socket != null) {
       _socket.close();
+      _socket = null;
     }
     _cplMap.clear();
+    _cplMap = null;
   }
 }
 
@@ -218,5 +219,6 @@ void main() async {
 
   print('code: ${res.code}\nres: $res\nrep: $rep');
 
-  Future.delayed(Duration(seconds: 5)).then((value) => client.close());
+  await Future.delayed(Duration(seconds: 2)).then((value) => client.close());
+  print('done');
 }
