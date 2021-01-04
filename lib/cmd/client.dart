@@ -42,7 +42,6 @@ class HuskyClient {
   //int _writePos = 0;
   var _connCompl = Completer<Socket>();
   var _authCompl = Completer<Socket>();
-  var _resCompl = Completer<Exception>();
   int _streamId = 0;
   var _cplMap = Map<int, Completer<ApiResponse>>();
   StreamSubscription<Uint8List> sub;
@@ -199,7 +198,7 @@ class HuskyClient {
 // test
 void main() async {
   var client = HuskyClient(
-      hostAddr: "68.0.0.205:7777",
+      hostAddr: "68.0.0.7:7777",
       //'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdmYqKy6699SFbaLD4fNBHlT2pBc/cYC7MdoYPlldh+XGiu0yfdJTZ5GpSf+d6HT5nuuM4EwIoM/fjhkZiHUcBA=='
       token:
           'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdmYqKy6699SFbaLD4fNBHlT2pBc/cYC7MdoYPlldh+XGiu0yfdJTZ5GpSf+d6HT5nuuM4EwIoM/fjhkZiHUcBA==',
