@@ -149,47 +149,6 @@ class HuskyClient {
 
 // test
 void main() async {
-  // Socket.connect('68.0.0.6', 7777).then((socket) {
-  //   print("connected");
-  //   AuthenticationRequest authreq = AuthenticationRequest();
-  //   AuthenticationResponse authresp = AuthenticationResponse();
-  //   ApiResponse resp = ApiResponse();
-  //   ApiRequest req = ApiRequest();
-
-  //   authreq.boxToken =
-  //       'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE0aMMRDs+0NI7Fdo57u6VlUL7+NnwJsi4ZJw59aTOlbV/iuE+w2gQwW5b5h+yFPeBnWDYOgB+vMhiqdNlAGLhRA==';
-  //   authreq.uid = Int64(521);
-
-  //   req.content = List.from(authreq.writeToBuffer());
-  //   print('content: \n');
-  //   print(dumpHexToString(req.content));
-  //   print('\n');
-
-  //   req.serverVersion = version;
-  //   req.operation = ApiOperation.valueOf(0);
-
-  //   var bs = req.writeToBuffer();
-
-  //   print(dumpHexToString(bs));
-
-  //   print("\n\n");
-
-  //   Uint8List frame = encodeFrame(1, apiVersion, frameType, frameFlag, 0, bs);
-
-  //   //Establish the onData, and onDone callbacks
-  //   socket.listen((data) {
-  //     print(data);
-  //   }, onDone: () {
-  //     print("Done");
-  //     socket.destroy();
-  //   });
-
-  //   print('whole frame:\n');
-  //   print(dumpHexToString(frame));
-
-  //   socket.add(frame);
-  // });
-
   var client = HuskyClient(
       hostAddr: "68.0.0.7:7777",
       token:
