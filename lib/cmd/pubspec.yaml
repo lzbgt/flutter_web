@@ -24,5 +24,5 @@ dependencies:
   fixnum:
   protobuf:
   ffi:
-  huskyclient: 0.0.6
+  huskyclient: 0.0.7
   
