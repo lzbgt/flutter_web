@@ -23,6 +23,6 @@ environment:
 dependencies:
   fixnum:
   protobuf:
-  binary:
   ffi:
+  huskyclient: 0.0.6
   
