@@ -6,10 +6,7 @@ import 'package:huskyclient/proto/dart/box/search.pb.dart';
 
 void main() async {
   var client = Native(
-    hostAddr: '68.0.0.7',
-    token: '',
-    uid: Int64(292),
-  );
+      hostAddr: '172.156.1.70:7777', token: '', uid: Int64(905), debug: true);
 
   try {
     await client.connect();
@@ -19,19 +16,19 @@ void main() async {
   }
 
   try {
-    var req = ListConversationRequest();
-    var rep = await client.send(ApiOperation.ListConversationOp, req);
-    var res = ListConversationResponse.fromBuffer(rep.content);
+    // var req = ListConversationRequest();
+    // var rep = await client.send(ApiOperation.ListConversationOp, req);
+    // var res = ListConversationResponse.fromBuffer(rep.content);
 
-    for (var conv in res.conversations) {
-      if (conv.type == Conversation_Type.TypeEtsme) {
-        print('etsme: $conv\n');
-      }
-      break;
-    }
+    // for (var conv in res.conversations) {
+    //   if (conv.type == Conversation_Type.TypeEtsme) {
+    //     print('etsme: $conv\n');
+    //   }
+    //   break;
+    // }
 
     var searchReq = CommonFileSearchRequest();
-    rep = await client.send(ApiOperation.CommonFileSearchOp, searchReq);
+    var rep = await client.send(ApiOperation.CommonFileSearchOp, searchReq);
     var files = CommonFileSearchResponse.fromBuffer(rep.content);
     for (var item in files.list) {
       print('item:\n$item\n');
